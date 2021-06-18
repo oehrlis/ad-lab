@@ -158,11 +158,13 @@ Add-ADGroupMember -Identity "$company Management" -Members king,rider,fleming,cl
 
 # create service principle
 Write-Host 'Create service principles...'
-New-ADUser -SamAccountName "oracle" -Name "oracle" -UserPrincipalName "oracle@$domain" -DisplayName "oracle" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true
-New-ADUser -SamAccountName "ol7db112" -Name "ol7db112.$domain" -DisplayName "ol7db112.$domain" -UserPrincipalName "oracle\ol7db112.$domain@$domain" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true
-New-ADUser -SamAccountName "ol7db122" -Name "ol7db122.$domain" -DisplayName "ol7db122.$domain" -UserPrincipalName "oracle\ol7db122.$domain@$domain" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true
-New-ADUser -SamAccountName "ol7db18" -Name "ol7db18.$domain" -DisplayName "ol7db18.$domain" -UserPrincipalName "oracle\ol7db18.$domain@$domain" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true
-New-ADUser -SamAccountName "ol7db19" -Name "ol7db19.$domain" -DisplayName "ol7db19.$domain" -UserPrincipalName "oracle\ol7db19.$domain@$domain" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true
+New-ADUser -SamAccountName "oracle" -Name "oracle" -UserPrincipalName "oracle@$domain" -DisplayName "oracle" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true 
+New-ADUser -SamAccountName "cmudb" -Name "cmudb" -DisplayName "cmudb" -Description "Oracle CMU Service User" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -PasswordNeverExpires $true
+New-ADUser -SamAccountName "db12" -Name "db12.$domain" -DisplayName "db12.$domain" -UserPrincipalName "oracle\db12.$domain@$domain" -Description "Kerberos Service User for db12" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -KerberosEncryptionType "AES128, AES256"
+New-ADUser -SamAccountName "db18" -Name "db18.$domain" -DisplayName "db18.$domain" -UserPrincipalName "oracle\db18.$domain@$domain" -Description "Kerberos Service User for db18" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -KerberosEncryptionType "AES128, AES256"
+New-ADUser -SamAccountName "db19" -Name "db19.$domain" -DisplayName "db19.$domain" -UserPrincipalName "oracle\db19.$domain@$domain" -Description "Kerberos Service User for db19" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -KerberosEncryptionType "AES128, AES256"
+New-ADUser -SamAccountName "oem1" -Name "oem1.$domain" -DisplayName "oem1.$domain" -UserPrincipalName "oracle\oem1.$domain@$domain" -Description "Kerberos Service User for oem1" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -KerberosEncryptionType "AES128, AES256"
+New-ADUser -SamAccountName "oem2" -Name "oem2.$domain" -DisplayName "oem2.$domain" -UserPrincipalName "oracle\oem2.$domain@$domain" -Description "Kerberos Service User for oem2" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -KerberosEncryptionType "AES128, AES256"
 
 # change vagrant privileges
 Add-ADGroupMember -Identity "Domain Admins" -Members vagrant
