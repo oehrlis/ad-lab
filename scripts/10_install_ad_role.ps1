@@ -86,7 +86,7 @@ $subnet = $ip -replace "\.\w*$", ""
 # - EOF Variables -----------------------------------------------------------
 
 # - Main --------------------------------------------------------------------
-Write-Host '= Start setup part 1 ======================================='
+Write-Host '= Start Install AD Role ===================================='
 Write-Host "Domain              : $domain"
 Write-Host "Domain Mode         : $DomainMode"
 Write-Host "IP                  : $ip"
@@ -141,5 +141,5 @@ if ((gwmi win32_computersystem).partofdomain -eq $false) {
         $adapters | ForEach-Object {$_.SetDNSServerSearchOrder($newDNSServers)}
     }
 }
-Write-Host '= Finish part 1 ============================================'
+Write-Host '= Finish Install AD Role ==================================='
 # --- EOF --------------------------------------------------------------------

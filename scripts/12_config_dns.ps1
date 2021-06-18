@@ -49,7 +49,7 @@ $hostfile = $ConfigPath + "\hosts.csv"
 
 # - Configure Domain --------------------------------------------------------
 # - Main --------------------------------------------------------------------
-Write-Host '= Start Config DNS ========================================='
+Write-Host '= Start Config DNS ============================================'
 Write-Host "- Default Values ----------------------------------------------"
 Write-Host "Script Name       : $ScriptName"
 Write-Host "Script fq         : $ScriptNameFull"
@@ -124,5 +124,5 @@ $NAT_HOSTNAME=hostname
 # get DNS Server Records
 Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
 
-Write-Host '= Finish part 4 ============================================'
+Write-Host '= Finish Config DNS ==========================================='
 # --- EOF --------------------------------------------------------------------

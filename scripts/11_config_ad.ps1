@@ -24,29 +24,6 @@ param (
     [string]$company = "Trivadis LAB"
 )
 
-# - Variables ---------------------------------------------------------------
-$ScriptNameFull = $MyInvocation.MyCommand.Path
-$ScriptName = $MyInvocation.MyCommand.Name
-$ScriptPath = (Split-Path $ScriptNameFull -Parent)
-$ConfigPath = (Split-Path $ScriptPath -Parent) + "\config"
-# set file name for default password
-$DefaultPWDFile = $ConfigPath + "\default_pwd_windows.txt"
-$UserCSV = $ConfigPath + "\users_ad.csv"
-# - EOF Variables -----------------------------------------------------------
-
-# - Main --------------------------------------------------------------------
-Write-Host '= Start Config AD Role =========================================='
-Write-Host "- Default Values ------------------------------------------------"
-Write-Host "Script Name       : $ScriptName"
-Write-Host "Script fq         : $ScriptNameFull"
-Write-Host "Script Path       : $ScriptPath"
-Write-Host "Config Path       : $ConfigPath"
-Write-Host "People OU         : $People"
-Write-Host "Group OU          : $Groups"
-Write-Host "Company Name      : $company"
-Write-Host "Password File     : $DefaultPWDFile"
-Write-Host "User Config File  : $UserCSV"
-
 # wait until we can access the AD. this is needed to prevent errors like:
 #   Unable to find a default server with Active Directory Web Services running.
 while ($true) {
@@ -59,6 +36,42 @@ while ($true) {
     }
 }
 
+# - Variables ---------------------------------------------------------------
+$ScriptNameFull = $MyInvocation.MyCommand.Path
+$ScriptName     = $MyInvocation.MyCommand.Name
+$ScriptPath     = (Split-Path $ScriptNameFull -Parent)
+$ConfigPath     = (Split-Path $ScriptPath -Parent) + "\config"
+# set file name for default password
+$DefaultPWDFile = $ConfigPath + "\default_pwd_windows.txt"
+$UserCSV        = $ConfigPath + "\users_ad.csv"
+$adDomain       = Get-ADDomain
+$domain         = $adDomain.DNSRoot
+$domainDn       = $adDomain.DistinguishedName
+$PeopleDN       = "ou=$People,$domainDn"
+$UsersDN        = "cn=Users,$domainDn"
+$GroupDN        = "ou=$Groups,$domainDn"
+#$company    = (Get-Culture).textinfo.totitlecase($adDomain.Name)
+$SecurePassword = ConvertTo-SecureString -AsPlainText $PlainPassword -Force
+# - EOF Variables -----------------------------------------------------------
+
+# - Main --------------------------------------------------------------------
+Write-Host '= Start Config AD Role =========================================='
+Write-Host "- Default Values ------------------------------------------------"
+Write-Host "Script Name         : $ScriptName"
+Write-Host "Script fq           : $ScriptNameFull"
+Write-Host "Script Path         : $ScriptPath"
+Write-Host "Config Path         : $ConfigPath"
+Write-Host "Password File       : $DefaultPWDFile"
+Write-Host "Default Password    : $PlainPassword"
+Write-Host "Domain              : $domain"
+Write-Host "Base DN             : $domainDn"
+Write-Host "Users DN            : $UsersDN"
+Write-Host "People DN           : $PeopleDN"
+Write-Host "Group DN            : $GroupDN"
+Write-Host "Company Name        : $company"
+Write-Host "User Config File    : $UserCSV"
+
+Write-Host '- Configure active directory -------------------------------'
 if ((Test-Path $DefaultPWDFile)) {
     Write-Host "Get default password from $DefaultPWDFile"
     $PlainPassword=Get-Content -Path  $DefaultPWDFile -TotalCount 1
@@ -68,27 +81,7 @@ if ((Test-Path $DefaultPWDFile)) {
     $PlainPassword=""
 }
 
-# - Variables ---------------------------------------------------------------
-$adDomain   = Get-ADDomain
-$domain     = $adDomain.DNSRoot
-$domainDn   = $adDomain.DistinguishedName
-$PeopleDN   = "ou=$People,$domainDn"
-$UsersDN    = "cn=Users,$domainDn"
-$GroupDN    = "ou=$Groups,$domainDn"
-#$company    = (Get-Culture).textinfo.totitlecase($adDomain.Name)
-$SecurePassword = ConvertTo-SecureString -AsPlainText $PlainPassword -Force
-# - EOF Variables -----------------------------------------------------------
-
 # - Configure Domain --------------------------------------------------------
-Write-Host '- Configure active directory -------------------------------'
-Write-Host "Company             : $company"
-Write-Host "Domain              : $domain"
-Write-Host "Base DN             : $domainDn"
-Write-Host "Users DN            : $UsersDN"
-Write-Host "People DN           : $PeopleDN"
-Write-Host "Group DN            : $GroupDN"
-Write-Host "Default Password    : $PlainPassword"
-
 # load AD PS module
 Import-Module ActiveDirectory
 
@@ -158,7 +151,6 @@ Add-ADGroupMember -Identity "$company Management" -Members king,rider,fleming,cl
 
 # create service principle
 Write-Host 'Create service principles...'
-New-ADUser -SamAccountName "oracle" -Name "oracle" -UserPrincipalName "oracle@$domain" -DisplayName "oracle" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true 
 New-ADUser -SamAccountName "cmudb" -Name "cmudb" -DisplayName "cmudb" -Description "Oracle CMU Service User" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -PasswordNeverExpires $true
 New-ADUser -SamAccountName "db12" -Name "db12.$domain" -DisplayName "db12.$domain" -UserPrincipalName "oracle\db12.$domain@$domain" -Description "Kerberos Service User for db12" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -KerberosEncryptionType "AES128, AES256"
 New-ADUser -SamAccountName "db18" -Name "db18.$domain" -DisplayName "db18.$domain" -UserPrincipalName "oracle\db18.$domain@$domain" -Description "Kerberos Service User for db18" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -KerberosEncryptionType "AES128, AES256"
@@ -167,9 +159,9 @@ New-ADUser -SamAccountName "oem1" -Name "oem1.$domain" -DisplayName "oem1.$domai
 New-ADUser -SamAccountName "oem2" -Name "oem2.$domain" -DisplayName "oem2.$domain" -UserPrincipalName "oracle\oem2.$domain@$domain" -Description "Kerberos Service User for oem2" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -KerberosEncryptionType "AES128, AES256"
 
 # change vagrant privileges
-Add-ADGroupMember -Identity "Domain Admins" -Members vagrant
-Add-ADGroupMember -Identity "Enterprise Admins" -Members vagrant
+Add-ADGroupMember -Identity "Domain Admins" -Members oracle
+Add-ADGroupMember -Identity "Enterprise Admins" -Members oracle
 
 Write-Host 'Done configuring AD...'
-Write-Host '= Finish part 3 ============================================'
+Write-Host '= Finish Config AD Role ========================================='
 # --- EOF --------------------------------------------------------------------
