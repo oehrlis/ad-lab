@@ -32,18 +32,21 @@ $ScriptNameFull = $MyInvocation.MyCommand.Path
 $ScriptName = $MyInvocation.MyCommand.Name
 $ScriptPath = (Split-Path $ScriptNameFull -Parent)
 $ConfigPath = (Split-Path $ScriptPath -Parent) + "\config"
+# - EOF Variables -----------------------------------------------------------
 
-Write-Output "- Default Values ----------------------------------------------"
-Write-Output "Script Name       : $ScriptName"
-Write-Output "Script fq         : $ScriptNameFull"
-Write-Output "Script Path       : $ScriptPath"
-Write-Output "Config Path       : $ConfigPath"
-Write-Output "Domain Name       : $domain"
-Write-Output "AD Domain Mode    : $DomainMode"
-Write-Output "Host IP Address   : $ip"
-Write-Output "DNS Server 2      : $dns1"
-Write-Output "DNS Server 2      : $dns2"
-Write-Output "Default Password  : $PlainPassword"
+# - Main --------------------------------------------------------------------
+Write-Host '= Start Install AD Role ========================================='
+Write-Host "- Default Values ------------------------------------------------"
+Write-Host "Script Name       : $ScriptName"
+Write-Host "Script fq         : $ScriptNameFull"
+Write-Host "Script Path       : $ScriptPath"
+Write-Host "Config Path       : $ConfigPath"
+Write-Host "Domain Name       : $domain"
+Write-Host "AD Domain Mode    : $DomainMode"
+Write-Host "Host IP Address   : $ip"
+Write-Host "DNS Server 2      : $dns1"
+Write-Host "DNS Server 2      : $dns2"
+Write-Host "Default Password  : $PlainPassword"
 
 # set file name for default password
 $DefaultPWDFile= $ConfigPath + "\default_pwd_windows.txt"
