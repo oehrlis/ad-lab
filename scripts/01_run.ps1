@@ -26,8 +26,11 @@ $ScriptNameFull             = $MyInvocation.MyCommand.Path
 $ScriptName                 = $MyInvocation.MyCommand.Name
 $ScriptPath                 = (Split-Path $ScriptNameFull -Parent)
 $ConfigPath                 = (Split-Path $ScriptPath -Parent) + "\config"
+$ConfigScript               = $ScriptPath + "00_config.ps1"
 
-. $ScriptPath + "00_config.ps1"
+# call Config Script
+. $ConfigScript
+
 # - EOF Default Values --------------------------------------------------------
 
 # - Main --------------------------------------------------------------------
