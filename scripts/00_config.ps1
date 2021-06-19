@@ -35,17 +35,17 @@ $DefaultPWDFile             = $ConfigPath + "\default_pwd_windows.txt"
 
 # get the $ServerAddress if not defined
 if (!$ServerAddress) { 
-    (Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*").IPAddress | Select-Object -first 1
+    $ServerAddress = (Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*").IPAddress | Select-Object -first 1
 }
 
 # get the $DNS1ClientServerAddress if not defined
 if (!$DNS1ClientServerAddress) { 
-    (Get-DnsClientServerAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*").ServerAddresses | Select-Object -first 1
+    $DNS1ClientServerAddress = (Get-DnsClientServerAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*").ServerAddresses | Select-Object -first 1
 }
 
 # get the $DNS2ClientServerAddress if not defined
 if (!$DNS2ClientServerAddress) { 
-    (Get-DnsClientServerAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*").ServerAddresses | Select-Object -last 1
+    $DNS2ClientServerAddress = (Get-DnsClientServerAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*").ServerAddresses | Select-Object -last 1
 }
 
 # generate random password if variable is empty
