@@ -27,7 +27,8 @@ $ScriptName                 = $MyInvocation.MyCommand.Name
 $ScriptPath                 = (Split-Path $ScriptNameFull -Parent)
 $ConfigPath                 = (Split-Path $ScriptPath -Parent) + "\config"
 $ConfigScript               = $ScriptPath + "\00_config.ps1"
-
+Write-Host "Script Name             : $ScriptName"
+Write-Host "Script fq               : $ScriptNameFull"
 # call Config Script
 . $ConfigScript
 
