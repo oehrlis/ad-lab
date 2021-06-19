@@ -23,7 +23,7 @@ $ADDomainMode               = "Win2012R2"
 $ServerAddress              = ""
 $DNS1ClientServerAddress    = ""
 $DNS2ClientServerAddress    = ""
-$PlainPassword              = "Test"
+$PlainPassword              = ""
 # - End of Customization -------------------------------------------------------
 
 # - Default Values -------------------------------------------------------------
