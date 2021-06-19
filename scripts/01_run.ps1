@@ -26,7 +26,13 @@ $ScriptName     = $MyInvocation.MyCommand.Name
 $ScriptNameFull = $MyInvocation.MyCommand.Path
 $ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_config.ps1"
 # call Config Script
-. $ConfigScript
+if ((Test-Path $ConfigScript)) {
+    Write-Host "INFO : load default values from $DefaultPWDFile"
+    . $ConfigScript
+} else {
+    Write-Error "ERROR: cloud not load default values"
+    exit 1
+} 
 
 # - EOF Default Values --------------------------------------------------------
 

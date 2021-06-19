@@ -24,6 +24,7 @@ $ServerAddress              = ""
 $DNS1ClientServerAddress    = ""
 $DNS2ClientServerAddress    = ""
 $PlainPassword              = ""
+$PasswordLength             = 15
 # - End of Customization -------------------------------------------------------
 
 # - Default Values -------------------------------------------------------------
@@ -57,12 +58,12 @@ if (!$PlainPassword) {
         # generate a password if password from file is empty
         if (!$PlainPassword) {
             Write-Host "INFO: Default password from $DefaultPWDFile seems empty, generate new password"
-            $PlainPassword = (1..$(Get-Random -Minimum 10 -Maximum 12) | % {$asci | get-random}) -join "" 
+            $PlainPassword = (-join ((48..57) + (97..122) | Get-Random -Count $PasswordLength | % {[char]$_}))
         }
     } else {
         # generate a new password
         Write-Error "INFO: Generate new password"
-        $PlainPassword = (1..$(Get-Random -Minimum 10 -Maximum 12) | % {$asci | get-random}) -join "" 
+        $PlainPassword = (-join ((48..57) + (97..122) | Get-Random -Count $PasswordLength | % {[char]$_}))
     }  
 } else {
     Write-Host "INFO: Using password provided via config file"
