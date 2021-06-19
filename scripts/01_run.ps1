@@ -18,12 +18,7 @@
 # ------------------------------------------------------------------------------
 
 # - Customization --------------------------------------------------------------
-$NetworkDomainName          = "trivadislabs.com"
-$ADDomainMode               = "Win2012R2"
-$ServerAddress              = ""
-$DNS1ClientServerAddress    = ""
-$DNS2ClientServerAddress    = ""
-$PlainPassword
+
 # - End of Customization -------------------------------------------------------
 
 # - Default Values -------------------------------------------------------------
@@ -31,47 +26,12 @@ $ScriptNameFull             = $MyInvocation.MyCommand.Path
 $ScriptName                 = $MyInvocation.MyCommand.Name
 $ScriptPath                 = (Split-Path $ScriptNameFull -Parent)
 $ConfigPath                 = (Split-Path $ScriptPath -Parent) + "\config"
-$DefaultPWDFile             = $ConfigPath + "\default_pwd_windows.txt"
 
-# get the $ServerAddress if not defined
-if (!$ServerAddress) { 
-    (Get-NetIPAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*").IPAddress | Select-Object -first 1
-}
-
-# get the $DNS1ClientServerAddress if not defined
-if (!$DNS1ClientServerAddress) { 
-    (Get-DnsClientServerAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*").ServerAddresses | Select-Object -first 1
-}
-
-# get the $DNS2ClientServerAddress if not defined
-if (!$DNS2ClientServerAddress) { 
-    (Get-DnsClientServerAddress -AddressFamily IPv4 -InterfaceAlias "Ethernet*").ServerAddresses | Select-Object -last 1
-}
-
-# generate random password if variable is empty
-if (!$PlainPassword) { 
-    # get default password from file
-    if ((Test-Path $DefaultPWDFile)) {
-        Write-Host "Get default password from $DefaultPWDFile"
-        $PlainPassword=Get-Content -Path  $DefaultPWDFile -TotalCount 1
-        $PlainPassword=$PlainPassword.trim()
-        # generate a password if password from file is empty
-        if (!$PlainPassword) {
-            Write-Host "Default password from $DefaultPWDFile seems empty, generate new password"
-            $PlainPassword = (1..$(Get-Random -Minimum 10 -Maximum 12) | % {$asci | get-random}) -join "" 
-        }
-    } else {
-        # generate a new password
-        Write-Error "Generate new password"
-        $PlainPassword = (1..$(Get-Random -Minimum 10 -Maximum 12) | % {$asci | get-random}) -join "" 
-    }  
-} else {
-    Write-Host "Using password provided via config file"
-}
+. $ScriptPath + "00_config.ps1"
 # - EOF Default Values --------------------------------------------------------
 
 # - Main --------------------------------------------------------------------
-Write-Host '= Set the default configuration values ========================================='
+Write-Host '= Start something =============================================================='
 Write-Host "- List Default Values ----------------------------------------------------------"
 Write-Host "Script Name             : $ScriptName"
 Write-Host "Script fq               : $ScriptNameFull"
