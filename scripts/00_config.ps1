@@ -23,13 +23,12 @@ $ADDomainMode               = "Win2012R2"
 $ServerAddress              = ""
 $DNS1ClientServerAddress    = ""
 $DNS2ClientServerAddress    = ""
-$PlainPassword
+$PlainPassword              = "Test"
 # - End of Customization -------------------------------------------------------
 
 # - Default Values -------------------------------------------------------------
-$ScriptNameFull             = $MyInvocation.MyCommand.Path
-$ScriptName                 = $MyInvocation.MyCommand.Name
-$ScriptPath                 = (Split-Path $ScriptNameFull -Parent)
+$ConfigScriptNameFull       = $MyInvocation.MyCommand.Path
+$ScriptPath                 = (Split-Path $ConfigScriptNameFull -Parent)
 $ConfigPath                 = (Split-Path $ScriptPath -Parent) + "\config"
 $DefaultPWDFile             = $ConfigPath + "\default_pwd_windows.txt"
 
@@ -52,21 +51,21 @@ if (!$DNS2ClientServerAddress) {
 if (!$PlainPassword) { 
     # get default password from file
     if ((Test-Path $DefaultPWDFile)) {
-        Write-Host "Get default password from $DefaultPWDFile"
+        Write-Host "INFO: Get default password from $DefaultPWDFile"
         $PlainPassword=Get-Content -Path  $DefaultPWDFile -TotalCount 1
         $PlainPassword=$PlainPassword.trim()
         # generate a password if password from file is empty
         if (!$PlainPassword) {
-            Write-Host "Default password from $DefaultPWDFile seems empty, generate new password"
+            Write-Host "INFO: Default password from $DefaultPWDFile seems empty, generate new password"
             $PlainPassword = (1..$(Get-Random -Minimum 10 -Maximum 12) | % {$asci | get-random}) -join "" 
         }
     } else {
         # generate a new password
-        Write-Error "Generate new password"
+        Write-Error "INFO: Generate new password"
         $PlainPassword = (1..$(Get-Random -Minimum 10 -Maximum 12) | % {$asci | get-random}) -join "" 
     }  
 } else {
-    Write-Host "Using password provided via config file"
+    Write-Host "INFO: Using password provided via config file"
 }
 # - EOF Default Values --------------------------------------------------------
 

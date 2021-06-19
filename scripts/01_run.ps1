@@ -22,13 +22,7 @@
 # - End of Customization -------------------------------------------------------
 
 # - Default Values -------------------------------------------------------------
-$ScriptNameFull             = $MyInvocation.MyCommand.Path
-$ScriptName                 = $MyInvocation.MyCommand.Name
-$ScriptPath                 = (Split-Path $ScriptNameFull -Parent)
-$ConfigPath                 = (Split-Path $ScriptPath -Parent) + "\config"
-$ConfigScript               = $ScriptPath + "\00_config.ps1"
-Write-Host "Script Name             : $ScriptName"
-Write-Host "Script fq               : $ScriptNameFull"
+$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_config.ps1"
 # call Config Script
 . $ConfigScript
 
