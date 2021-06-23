@@ -1,21 +1,21 @@
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Trivadis AG, Infrastructure Managed Services
 # Saegereistrasse 29, 8152 Glattbrugg, Switzerland
-# ---------------------------------------------------------------------------
-# Name.......: 24_config_dns.ps1
+# ------------------------------------------------------------------------------
+# Name.......: 12_config_dns.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2019.05.13
+# Date.......: 2021.06.19
 # Revision...: 
 # Purpose....: Script to configure DNS server
 # Notes......: ...
 # Reference..: 
-# License....: Licensed under the Universal Permissive License v 1.0 as 
-#              shown at http://oss.oracle.com/licenses/upl.
-# ---------------------------------------------------------------------------
+# License....: Apache License Version 2.0, January 2004 as shown
+#              at http://www.apache.org/licenses/
+# ------------------------------------------------------------------------------
 # Modified...:
 # see git revision history for more information on changes/updates
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # wait until we can access the AD. this is needed to prevent errors like:
 #   Unable to find a default server with Active Directory Web Services running.
@@ -98,18 +98,18 @@ foreach ($HostRecord in $HostList)
     #     Write-Host "Error while adding Resource Record A for Host:`n$($Error[0].Exception.Message)"
     # }
     Write-Host "Add DNS PTR resource record for Host $Hostname for $FQDN"
-    Add-DnsServerResourceRecordPtr -Name $IPv4Name -ZoneName $Zone -AllowUpdateAny -TimeToLive 01:00:00 -AgeRecord -PtrDomainName $FQDN
-    if ( $Hostname -Match "db") {
-        Write-Host "Generate keytab file for host $Hostname ..."
-        $cmd = 'ktpass -princ oracle/' + $FQDN + '@' + $REALM + ' -mapuser ' + $FQDN + ' -pass ' + $PlainPassword + ' -crypto ALL -ptype KRB5_NT_PRINCIPAL -out ' + $Keytabfile
-        $output = cmd /c $cmd 2>&1
-        # print command
-        Write-Host $cmd
-        # print output off command
-        Write-Host $output
-    } else {
-        Write-Host "Skip keytab file generation for host $Hostname ..."
-    }
+    # Add-DnsServerResourceRecordPtr -Name $IPv4Name -ZoneName $Zone -AllowUpdateAny -TimeToLive 01:00:00 -AgeRecord -PtrDomainName $FQDN
+    # if ( $Hostname -Match "db") {
+    #     Write-Host "Generate keytab file for host $Hostname ..."
+    #     $cmd = 'ktpass -princ oracle/' + $FQDN + '@' + $REALM + ' -mapuser ' + $FQDN + ' -pass ' + $PlainPassword + ' -crypto ALL -ptype KRB5_NT_PRINCIPAL -out ' + $Keytabfile
+    #     $output = cmd /c $cmd 2>&1
+    #     # print command
+    #     Write-Host $cmd
+    #     # print output off command
+    #     Write-Host $output
+    # } else {
+    #     Write-Host "Skip keytab file generation for host $Hostname ..."
+    # }
 }
 
 # add CNAME records for ad, db and oud

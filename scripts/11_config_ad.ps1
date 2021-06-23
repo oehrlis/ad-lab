@@ -1,29 +1,53 @@
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Trivadis AG, Infrastructure Managed Services
 # Saegereistrasse 29, 8152 Glattbrugg, Switzerland
-# ---------------------------------------------------------------------------
-# Name.......: 23_config_ad.ps1
+# ------------------------------------------------------------------------------
+# Name.......: 11_config_ad.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2019.05.13
+# Date.......: 2021.06.19
 # Revision...: 
 # Purpose....: Script to configure Active Directory
 # Notes......: ...
 # Reference..: 
-# License....: Licensed under the Universal Permissive License v 1.0 as 
-#              shown at http://oss.oracle.com/licenses/upl.
-# ---------------------------------------------------------------------------
+# License....: Apache License Version 2.0, January 2004 as shown
+#              at http://www.apache.org/licenses/
+# ------------------------------------------------------------------------------
 # Modified...:
 # see git revision history for more information on changes/updates
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-# processing commandline parameter
-param (
-    [string]$People = "People",
-    [string]$Groups = "Groups",
-    [string]$company = "Trivadis LAB"
-)
+# - Customization --------------------------------------------------------------
+# - End of Customization -------------------------------------------------------
 
+# - Default Values -------------------------------------------------------------
+$ScriptName     = $MyInvocation.MyCommand.Name
+$ScriptNameFull = $MyInvocation.MyCommand.Path
+$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_config.ps1"
+$Hostname       = (Hostname)
+# - EOF Default Values ---------------------------------------------------------
+
+# - Variables ---------------------------------------------------------------
+# call Config Script
+if ((Test-Path $ConfigScript)) {
+    Write-Host "INFO : load default values from $DefaultPWDFile"
+    . $ConfigScript
+} else {
+    Write-Error "ERROR: cloud not load default values"
+    exit 1
+}
+$adDomain       = Get-ADDomain
+$domain         = $adDomain.DNSRoot
+$domainDn       = $adDomain.DistinguishedName
+$PeopleDN       = "ou=$People,$domainDn"
+$UsersDN        = "cn=Users,$domainDn"
+$GroupDN        = "ou=$Groups,$domainDn"
+
+$SecurePassword = ConvertTo-SecureString -AsPlainText $PlainPassword -Force
+
+# - EOF Variables --------------------------------------------------------------
+
+# - Main -----------------------------------------------------------------------
 # wait until we can access the AD. this is needed to prevent errors like:
 #   Unable to find a default server with Active Directory Web Services running.
 while ($true) {
@@ -36,58 +60,26 @@ while ($true) {
     }
 }
 
-# - Variables ---------------------------------------------------------------
-$ScriptNameFull = $MyInvocation.MyCommand.Path
-$ScriptName     = $MyInvocation.MyCommand.Name
-$ScriptPath     = (Split-Path $ScriptNameFull -Parent)
-$ConfigPath     = (Split-Path $ScriptPath -Parent) + "\config"
-# set file name for default password
-$DefaultPWDFile = $ConfigPath + "\default_pwd_windows.txt"
-$UserCSV        = $ConfigPath + "\users_ad.csv"
-$adDomain       = Get-ADDomain
-$domain         = $adDomain.DNSRoot
-$domainDn       = $adDomain.DistinguishedName
-$PeopleDN       = "ou=$People,$domainDn"
-$UsersDN        = "cn=Users,$domainDn"
-$GroupDN        = "ou=$Groups,$domainDn"
-#$company    = (Get-Culture).textinfo.totitlecase($adDomain.Name)
-if ((Test-Path $DefaultPWDFile)) {
-    Write-Host "Get default password from $DefaultPWDFile"
-    $PlainPassword=Get-Content -Path  $DefaultPWDFile -TotalCount 1
-    $PlainPassword=$PlainPassword.trim()
-} else {
-    Write-Error "Can not access $DefaultPWDFile"
-    $PlainPassword=""
-}
-$SecurePassword = ConvertTo-SecureString -AsPlainText $PlainPassword -Force
-# - EOF Variables -----------------------------------------------------------
-
-# - Main --------------------------------------------------------------------
-Write-Host '= Start Config AD Role =========================================='
-Write-Host "- Default Values ------------------------------------------------"
-Write-Host "Script Name         : $ScriptName"
-Write-Host "Script fq           : $ScriptNameFull"
-Write-Host "Script Path         : $ScriptPath"
-Write-Host "Config Path         : $ConfigPath"
-Write-Host "Password File       : $DefaultPWDFile"
-Write-Host "Default Password    : $PlainPassword"
-Write-Host "Domain              : $domain"
-Write-Host "Base DN             : $domainDn"
-Write-Host "Users DN            : $UsersDN"
-Write-Host "People DN           : $PeopleDN"
-Write-Host "Group DN            : $GroupDN"
-Write-Host "Company Name        : $company"
-Write-Host "User Config File    : $UserCSV"
-
-Write-Host '- Configure active directory -------------------------------'
-
+Write-Host "INFO: -------------------------------------------------------------" 
+Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: Default Values ----------------------------------------------" 
+Write-Host "      Script Name           : $ScriptName"
+Write-Host "      Script full qualified : $ScriptNameFull"
+Write-Host "      Script Path           : $ScriptPath"
+Write-Host "      Config Path           : $ConfigPath"
+Write-Host "      Password File         : $DefaultPWDFile"
+Write-Host "      Network Domain Name   : $domain"
+Write-Host "      BaseDN                : $domainDn"
+Write-Host "      People DN             : $PeopleDN"
+Write-Host "      User DN               : $UsersDN"
+Write-Host "      Group DN              : $GroupDN"
+Write-Host "INFO: -------------------------------------------------------------" 
 
 # - Configure Domain --------------------------------------------------------
-# load AD PS module
-Import-Module ActiveDirectory
+Import-Module ActiveDirectory           # load AD PS module
 
 # # add People OU...
-Write-Host 'Add organizational units for departments...'
+Write-Host "INFO: Add organizational units for departments" 
 NEW-ADOrganizationalUnit -name $People -path $domainDn
 NEW-ADOrganizationalUnit -name "Senior Management" -path $PeopleDN
 NEW-ADOrganizationalUnit -name "Human Resources" -path $PeopleDN
@@ -98,7 +90,7 @@ NEW-ADOrganizationalUnit -name "Sales" -path $PeopleDN
 NEW-ADOrganizationalUnit -name "Operations" -path $PeopleDN
 
 #...and import users
-Write-Host 'Import users from CSV ...'
+Write-Host "INFO: Import users from CSV" 
 Import-CSV -delimiter "," $UserCSV | foreach {
     $Path = "ou=" + $_.Department + "," + $PeopleDN
     $UserPrincipalName = $_.SamAccountName + "@" + $domain
@@ -111,58 +103,89 @@ Import-CSV -delimiter "," $UserCSV | foreach {
                 -DisplayName $_.Name `
                 -EmailAddress $eMail `
                 -Title $_.Title `
-                -Company "$company" `
+                -Company "$Company" `
                 -Department $_.Department `
                 -Path $Path `
                 -AccountPassword $SecurePassword -Enabled $true
 }
 
 # Update OU and set managedBy
-Write-Host 'Add managed by to organizational units...'
+Write-Host "INFO: Add managed by to organizational units" 
 Set-ADOrganizationalUnit -Identity "ou=Senior Management,$PeopleDN" -ManagedBy king
-Set-ADOrganizationalUnit -Identity "ou=Human Resources,$PeopleDN" -ManagedBy rider
+Set-ADOrganizationalUnit -Identity "ou=Human Resources,$PeopleDN"   -ManagedBy rider
 Set-ADOrganizationalUnit -Identity "ou=Information Technology,$PeopleDN" -ManagedBy fleming
-Set-ADOrganizationalUnit -Identity "ou=Accounting,$PeopleDN" -ManagedBy clark
-Set-ADOrganizationalUnit -Identity "ou=Research,$PeopleDN" -ManagedBy blofeld
-Set-ADOrganizationalUnit -Identity "ou=Sales,$PeopleDN" -ManagedBy moneypenny
-Set-ADOrganizationalUnit -Identity "ou=Operations,$PeopleDN" -ManagedBy leitner
+Set-ADOrganizationalUnit -Identity "ou=Accounting,$PeopleDN"        -ManagedBy clark
+Set-ADOrganizationalUnit -Identity "ou=Research,$PeopleDN"          -ManagedBy blofeld
+Set-ADOrganizationalUnit -Identity "ou=Sales,$PeopleDN"             -ManagedBy moneypenny
+Set-ADOrganizationalUnit -Identity "ou=Operations,$PeopleDN"        -ManagedBy leitner
 
 # create company groups
-Write-Host 'Create $company groups...'
+Write-Host "INFO: Create $Company groups" 
 NEW-ADOrganizationalUnit -name $Groups -path $domainDn
-New-ADGroup -Name "$company Users" -SamAccountName "$company Users" -GroupCategory Security -GroupScope Global -DisplayName "$company Users" -Path $GroupDN
-Add-ADGroupMember -Identity "$company Users" -Members lynd,rider,tanner,gartner,fleming,bond,walters,renton,leitner,blake,dent,ward,moneypenny,scott,smith,adams,prefect,blofeld,miller,clark,king
+New-ADGroup -Name "$Company Users" -SamAccountName "$Company Users" `
+    -GroupCategory Security -GroupScope Global `
+    -DisplayName "$Company Users" -Path $GroupDN
 
-New-ADGroup -Name "$company DB Admins" -SamAccountName "$company DB Admins" -GroupCategory Security -GroupScope Global -DisplayName "$company DB Admins" -Path $GroupDN
-Add-ADGroupMember -Identity "$company DB Admins" -Members gartner,fleming
+Add-ADGroupMember -Identity "$Company Users" `
+    -Members lynd,rider,tanner,gartner,fleming,bond,walters,renton,leitner,blake
 
-New-ADGroup -Name "$company Developers" -SamAccountName "$company Developers" -GroupCategory Security -GroupScope Global -DisplayName "$company Developers" -Path $GroupDN
-Add-ADGroupMember -Identity "$company Developers" -Members scott,smith,adams,prefect,blofeld
+Add-ADGroupMember -Identity "$Company Users" `
+    -Members dent,ward,moneypenny,scott,smith,adams,prefect,blofeld,miller,clark,king
 
-New-ADGroup -Name "$company System Admins" -SamAccountName "$company System Admins" -GroupCategory Security -GroupScope Global -DisplayName "$company System Admins" -Path $GroupDN
-Add-ADGroupMember -Identity "$company System Admins" -Members tanner,fleming
+New-ADGroup -Name "$Company DB Admins" -SamAccountName "$Company DB Admins" `
+    -GroupCategory Security -GroupScope Global `
+    -DisplayName "$Company DB Admins" -Path $GroupDN
 
-New-ADGroup -Name "$company APP Admins" -SamAccountName "$company APP Admins" -GroupCategory Security -GroupScope Global -DisplayName "$company APP Admins" -Path $GroupDN
+Add-ADGroupMember -Identity "$Company DB Admins" -Members gartner,fleming
 
-New-ADGroup -Name "$company HR" -SamAccountName "$company HR" -GroupCategory Security -GroupScope Global -DisplayName "$company Management" -Path $GroupDN
-Add-ADGroupMember -Identity "$company HR" -Members rider,lynd
+New-ADGroup -Name "$Company Developers" -SamAccountName "$Company Developers" `
+    -GroupCategory Security -GroupScope Global `
+    -DisplayName "$Company Developers" -Path $GroupDN
 
-New-ADGroup -Name "$company Management" -SamAccountName "$company Management" -GroupCategory Security -GroupScope Global -DisplayName "$company Management" -Path $GroupDN
-Add-ADGroupMember -Identity "$company Management" -Members king,rider,fleming,clark,blofeld,moneypenny,leitner
+Add-ADGroupMember -Identity "$Company Developers" `
+    -Members scott,smith,adams,prefect,blofeld
+
+New-ADGroup -Name "$Company System Admins" -SamAccountName "$Company System Admins" `
+    -GroupCategory Security -GroupScope Global `
+    -DisplayName "$Company System Admins" -Path $GroupDN
+
+Add-ADGroupMember -Identity "$Company System Admins" -Members tanner,fleming
+
+New-ADGroup -Name "$Company APP Admins" -SamAccountName "$Company APP Admins" `
+    -GroupCategory Security -GroupScope Global `
+    -DisplayName "$Company APP Admins" -Path $GroupDN
+
+New-ADGroup -Name "$Company HR" -SamAccountName "$Company HR" `
+    -GroupCategory Security -GroupScope Global `
+    -DisplayName "$Company Management" -Path $GroupDN
+
+Add-ADGroupMember -Identity "$Company HR" -Members rider,lynd
+
+New-ADGroup -Name "$Company Management" -SamAccountName "$Company Management" `
+    -GroupCategory Security -GroupScope Global `
+    -DisplayName "$Company Management" -Path $GroupDN
+
+Add-ADGroupMember -Identity "$Company Management" -Members clark,blofeld,moneypenny
+Add-ADGroupMember -Identity "$Company Management" -Members king,rider,fleming,leitner
 
 # create service principle
-Write-Host 'Create service principles...'
-New-ADUser -SamAccountName "cmudb" -Name "cmudb" -DisplayName "cmudb" -Description "Oracle CMU Service User" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -PasswordNeverExpires $true
-New-ADUser -SamAccountName "db12" -Name "db12" -DisplayName "db12" -Description "Kerberos Service User for db12" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -KerberosEncryptionType "AES128, AES256"
-New-ADUser -SamAccountName "db18" -Name "db18" -DisplayName "db18" -Description "Kerberos Service User for db18" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -KerberosEncryptionType "AES128, AES256"
-New-ADUser -SamAccountName "db19" -Name "db19" -DisplayName "db19" -Description "Kerberos Service User for db19" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -KerberosEncryptionType "AES128, AES256"
-New-ADUser -SamAccountName "oem1" -Name "oem1" -DisplayName "oem1" -Description "Kerberos Service User for oem1" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -KerberosEncryptionType "AES128, AES256"
-New-ADUser -SamAccountName "oem2" -Name "oem2" -DisplayName "oem2" -Description "Kerberos Service User for oem2" -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true -KerberosEncryptionType "AES128, AES256"
-
-# change vagrant privileges
-Add-ADGroupMember -Identity "Domain Admins" -Members oracle
+Write-Host "INFO: Create service principles" 
+Write-Host "INFO: Process hosts from CSV ($HostCSVFile)" 
+$HostList = Import-Csv -Path $HostCSVFile   
+foreach ($HostRecord in $HostList)
+{
+    $Hostname   = $HostRecord.Name
+    Write-Host "INFO: Add service principle for $Hostname" 
+    New-ADUser -SamAccountName $Hostname -Name $Hostname `
+        -DisplayName $Hostname -Description "Kerberos Service User for $Hostname" `
+        -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true `
+        -KerberosEncryptionType "AES128, AES256"
+}
+# change oracle privileges
+Add-ADGroupMember -Identity "Domain Admins"     -Members oracle
 Add-ADGroupMember -Identity "Enterprise Admins" -Members oracle
 
-Write-Host 'Done configuring AD...'
-Write-Host '= Finish Config AD Role ========================================='
+Write-Host "INFO: Done configuring AD -----------------------------------------" 
+Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: -------------------------------------------------------------" 
 # --- EOF --------------------------------------------------------------------
