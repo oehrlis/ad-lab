@@ -5,13 +5,13 @@
 # Name.......: 29_sum_up_ad.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2019.05.13
+# Date.......: 2021.06.23
 # Revision...: 
 # Purpose....: Script to display a summary of Active Directory Domain
 # Notes......: ...
 # Reference..: 
-# License....: Licensed under the Universal Permissive License v 1.0 as 
-#              shown at http://oss.oracle.com/licenses/upl.
+# License....: Apache License Version 2.0, January 2004 as shown
+#              at http://www.apache.org/licenses/
 # ---------------------------------------------------------------------------
 # Modified...:
 # see git revision history for more information on changes/updates

@@ -5,7 +5,7 @@
 # Name.......: 12_config_dns.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2021.06.19
+# Date.......: 2021.06.23
 # Revision...: 
 # Purpose....: Script to configure DNS server
 # Notes......: ...

@@ -5,7 +5,7 @@
 # Name.......: 00_init_environment.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2021.06.19
+# Date.......: 2021.06.23
 # Revision...: 
 # Purpose....: Initialize and configure the default values
 # Notes......: ...
