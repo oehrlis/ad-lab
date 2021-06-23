@@ -45,6 +45,7 @@ Write-Host "      Script Name           : $ScriptName"
 Write-Host "      Script full qualified : $ScriptNameFull"
 Write-Host "      Script Path           : $ScriptPath"
 Write-Host "      Config Path           : $ConfigPath"
+Write-Host "      Config Script         : $ConfigPath"
 Write-Host "      Password File         : $DefaultPWDFile"
 Write-Host "      Network Domain Name   : $NetworkDomainName"
 Write-Host "      NetBios Name          : $netbiosDomain"
@@ -85,9 +86,9 @@ if ((gwmi win32_computersystem).partofdomain -eq $false) {
         -SafeModeAdministratorPassword $SecurePassword `
         -CreateDnsDelegation:$false `
         -DatabasePath "C:\Windows\NTDS" `
-        -DomainMode $DomainMode `
-        -ForestMode $DomainMode `
-        -DomainName $domain `
+        -DomainMode $ADDomainMode `
+        -ForestMode $ADDomainMode `
+        -DomainName $NetworkDomainName `
         -DomainNetbiosName $netbiosDomain `
         -InstallDns:$true `
         -LogPath "C:\Windows\NTDS" `

@@ -67,7 +67,9 @@ Write-Host "      Script Name           : $ScriptName"
 Write-Host "      Script full qualified : $ScriptNameFull"
 Write-Host "      Script Path           : $ScriptPath"
 Write-Host "      Config Path           : $ConfigPath"
+Write-Host "      Config Script         : $ConfigScript"
 Write-Host "      Password File         : $DefaultPWDFile"
+Write-Host "      User Config CSV File  : $UserCSVFile"
 Write-Host "      Network Domain Name   : $domain"
 Write-Host "      BaseDN                : $domainDn"
 Write-Host "      People DN             : $PeopleDN"
@@ -91,7 +93,7 @@ NEW-ADOrganizationalUnit -name "Operations" -path $PeopleDN
 
 #...and import users
 Write-Host "INFO: Import users from CSV" 
-Import-CSV -delimiter "," $UserCSV | foreach {
+Import-CSV -delimiter "," $UserCSVFile | foreach {
     $Path = "ou=" + $_.Department + "," + $PeopleDN
     $UserPrincipalName = $_.SamAccountName + "@" + $domain
     $eMail = $_.GivenName + "." + $_.Surname + "@" + $domain

@@ -38,12 +38,8 @@ $NAT_HOSTNAME   = hostname
 
 # - Variables ---------------------------------------------------------------
 $ScriptNameFull = $MyInvocation.MyCommand.Path
-$ScriptName = $MyInvocation.MyCommand.Name
-$ScriptPath = (Split-Path $ScriptNameFull -Parent)
-$ConfigPath = (Split-Path $ScriptPath -Parent) + "\config"
-# set file name for default password
-$DefaultPWDFile = $ConfigPath + "\default_pwd_windows.txt"
-$hostfile = $ConfigPath + "\hosts.csv"
+$ScriptName     = $MyInvocation.MyCommand.Name
+$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
 
 # call Config Script
 if ((Test-Path $ConfigScript)) {
@@ -57,30 +53,31 @@ if ((Test-Path $ConfigScript)) {
 
 # - Configure Domain --------------------------------------------------------
 # - Main --------------------------------------------------------------------
-Write-Host '= Start Config DNS ============================================'
-Write-Host "- Default Values ----------------------------------------------"
-Write-Host "Script Name       : $ScriptName"
-Write-Host "Script fq         : $ScriptNameFull"
-Write-Host "Script Path       : $ScriptPath"
-Write-Host "Config Path       : $ConfigPath"
-Write-Host "Password File     : $DefaultPWDFile"
-Write-Host "Host              : $NAT_HOSTNAME"
-Write-Host "Domain            : $domain"
-Write-Host "REALM             : $REALM"
-Write-Host "Base DN           : $domainDn"
-Write-Host "Host File         : $hostfile"
+Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: Default Values ----------------------------------------------" 
+Write-Host "      Script Name       : $ScriptName"
+Write-Host "      Script fq         : $ScriptNameFull"
+Write-Host "      Script Path       : $ScriptPath"
+Write-Host "      Config Path       : $ConfigPath"
+Write-Host "      Config Script     : $ConfigScript"
+Write-Host "      Password File     : $DefaultPWDFile"
+Write-Host "      Host File         : $HostCSVFile"
+Write-Host "      Host              : $NAT_HOSTNAME"
+Write-Host "      Domain            : $domain"
+Write-Host "      REALM             : $REALM"
+Write-Host "      Base DN           : $domainDn"
 
 if ((Test-Path $DefaultPWDFile)) {
-    Write-Host "Get default password from $DefaultPWDFile"
+    Write-Host "INFO : Get default password from $DefaultPWDFile"
     $PlainPassword=Get-Content -Path  $DefaultPWDFile -TotalCount 1
     $PlainPassword=$PlainPassword.trim()
 
 } else {
-    Write-Error "Can not access $DefaultPWDFile"
+    Write-Error "ERR  : Can not access $DefaultPWDFile"
     $PlainPassword=""
 }
 
-Write-Host 'Create reverse lookup zone...'
+Write-Host 'INFO : Create reverse lookup zone...'
 # create reverse lookup zone
 Add-DnsServerPrimaryZone -NetworkID "10.0.0.0/24" -ReplicationScope "Forest"
 
@@ -88,8 +85,8 @@ Add-DnsServerPrimaryZone -NetworkID "10.0.0.0/24" -ReplicationScope "Forest"
 #Remove-DnsServerResourceRecord -ZoneName $domain -RRType "A" -Name $NAT_HOSTNAME -Force
 
 #...and import hosts
-Write-Host 'Process hosts from CSV ...'
-$HostList = Import-Csv -Path $hostfile   
+Write-Host 'INFO : Process hosts from CSV ...'
+$HostList = Import-Csv -Path $HostCSVFile   
 foreach ($HostRecord in $HostList)
 {
     $IP         = $HostRecord.IP
@@ -121,9 +118,9 @@ foreach ($HostRecord in $HostList)
 }
 
 # add CNAME records for ad, db and oud
-Add-DnsServerResourceRecordCName -Name "ad" -HostNameAlias "win2016ad.$domain" -ZoneName $domain
-Add-DnsServerResourceRecordCName -Name "oud" -HostNameAlias "ol7oud12.$domain" -ZoneName $domain
-Add-DnsServerResourceRecordCName -Name "db" -HostNameAlias "ol7db19.$domain" -ZoneName $domain
+Add-DnsServerResourceRecordCName -Name "ad"  -HostNameAlias "win2016ad.$domain" -ZoneName $domain
+Add-DnsServerResourceRecordCName -Name "oud" -HostNameAlias "ol7oud12.$domain"  -ZoneName $domain
+Add-DnsServerResourceRecordCName -Name "db"  -HostNameAlias "ol7db19.$domain"   -ZoneName $domain
 
 # get the IP Address of the NAT Network
 $NAT_IP=(Get-WmiObject -Class Win32_NetworkAdapterConfiguration | where {$_.DefaultIPGateway -ne $null}).IPAddress | select-object -first 1
@@ -132,5 +129,7 @@ $NAT_HOSTNAME=hostname
 # get DNS Server Records
 Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
 
-Write-Host '= Finish Config DNS ==========================================='
+Write-Host "INFO: Done configuring DNS ----------------------------------------" 
+Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: -------------------------------------------------------------" 
 # --- EOF --------------------------------------------------------------------

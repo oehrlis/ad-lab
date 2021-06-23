@@ -33,9 +33,7 @@ while ($true) {
 $ScriptNameFull = $MyInvocation.MyCommand.Path
 $ScriptName     = $MyInvocation.MyCommand.Name
 $ScriptPath     = (Split-Path $ScriptNameFull -Parent)
-$ConfigPath     = (Split-Path $ScriptPath -Parent) + "\config"
-# set file name for default password
-$DefaultPWDFile = $ConfigPath + "\default_pwd_windows.txt"
+$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
 $adDomain       = Get-ADDomain
 $domain         = $adDomain.DNSRoot
 $domainDn       = $adDomain.DistinguishedName
@@ -54,29 +52,33 @@ if ((Test-Path $ConfigScript)) {
 
 # - Configure Domain --------------------------------------------------------
 # - Main --------------------------------------------------------------------
-Write-Host '= Start Config CA ============================================='
-Write-Host "- Default Values ----------------------------------------------"
-Write-Host "Script Name       : $ScriptName"
-Write-Host "Script fq         : $ScriptNameFull"
-Write-Host "Script Path       : $ScriptPath"
-Write-Host "Config Path       : $ConfigPath"
-Write-Host "Password File     : $DefaultPWDFile"
-Write-Host "AD Domain         : $adDomain"
-Write-Host "Domain Base DN    : $domainDn"
-Write-Host "Password File     : $DefaultPWDFile"
-Write-Host "Company Name      : $company"
-Write-Host "Root CA           : $RootCAFile"
+Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: Default Values ----------------------------------------------" 
+Write-Host "      Script Name       : $ScriptName"
+Write-Host "      Script fq         : $ScriptNameFull"
+Write-Host "      Script Path       : $ScriptPath"
+Write-Host "      Config Path       : $ConfigPath"
+Write-Host "      Config Script     : $ConfigScript"
+Write-Host "      Password File     : $DefaultPWDFile"
+Write-Host "      Host              : $NAT_HOSTNAME"
+Write-Host "      Domain            : $domain"
+Write-Host "      REALM             : $REALM"
+Write-Host "      Base DN           : $domainDn"
+Write-Host "      AD Domain         : $adDomain"
+Write-Host "      Domain Base DN    : $domainDn"
+Write-Host "      Company Name      : $company"
+Write-Host "      Root CA           : $RootCAFile"
 
 if ((Test-Path $DefaultPWDFile)) {
-    Write-Host "Get default password from $DefaultPWDFile"
+    Write-Host "INFO : Get default password from $DefaultPWDFile"
     $PlainPassword=Get-Content -Path  $DefaultPWDFile -TotalCount 1
     $PlainPassword=$PlainPassword.trim()
 } else {
-    Write-Error "Can not access $DefaultPWDFile"
+    Write-Error "ERR  : Can not access $DefaultPWDFile"
     $PlainPassword=""
 }
 
-Write-Host 'Install Role ADCS-Cert-Authority...'
+Write-Host 'INFO : Install Role ADCS-Cert-Authority...'
 Install-WindowsFeature ADCS-Cert-Authority -IncludeManagementTools
 
 $caCommonName = "$company Enterprise Root CA"
@@ -88,7 +90,7 @@ $caCommonName = "$company Enterprise Root CA"
 #
 # NB to install a EnterpriseRootCa the current user must be on the
 #    Enterprise Admins group. 
-Write-Host 'Configure ADCS-Cert-Authority...'
+Write-Host 'INFO : Configure ADCS-Cert-Authority...'
 
 Install-AdcsCertificationAuthority `
     -CAType EnterpriseRootCa  `
@@ -100,7 +102,7 @@ Install-AdcsCertificationAuthority `
     -ValidityPeriodUnits 5 `
     -Force
 
-Write-Host 'Export root CA to $RootCAFile ...'
+Write-Host 'INFO : Export root CA to $RootCAFile ...'
 $cmd = 'certutil -ca.cert ' + $RootCAFile
 $output = cmd /c $cmd 2>&1
 # print command
@@ -108,5 +110,7 @@ Write-Host $cmd
 # print output off command
 Write-Host $output
 
-Write-Host '= Finish Config CA ============================================'
+Write-Host "INFO: Done configuring CA -----------------------------------------" 
+Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: -------------------------------------------------------------" 
 # --- EOF --------------------------------------------------------------------

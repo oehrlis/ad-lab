@@ -17,15 +17,13 @@
 # see git revision history for more information on changes/updates
 # ---------------------------------------------------------------------------
 # - Variables ---------------------------------------------------------------
-$ScriptNameFull = $MyInvocation.MyCommand.Path
+$# - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
-$ScriptPath     = (Split-Path $ScriptNameFull -Parent)
-$ConfigPath     = (Split-Path $ScriptPath -Parent) + "\config"
-# set file name for default password
-$DefaultPWDFile = $ConfigPath + "\default_pwd_windows.txt"
-$NAT_HOSTNAME=hostname
-Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
-
+$ScriptNameFull = $MyInvocation.MyCommand.Path
+$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
+$Hostname       = (Hostname)
+# - EOF Default Values ---------------------------------------------------------
+# - Main -----------------------------------------------------------------------
 # call Config Script
 if ((Test-Path $ConfigScript)) {
     Write-Host "INFO : load default values from $DefaultPWDFile"
@@ -34,29 +32,37 @@ if ((Test-Path $ConfigScript)) {
     Write-Error "ERROR: cloud not load default values"
     exit 1
 }
-# - EOF Variables -----------------------------------------------------------
+# - EOF Variables --------------------------------------------------------------
 
 # - Main --------------------------------------------------------------------
-Write-Host '= Start Config AD Role =========================================='
-Write-Host "- Default Values ------------------------------------------------"
-Write-Host "Script Name         : $ScriptName"
-Write-Host "Script fq           : $ScriptNameFull"
-Write-Host "Script Path         : $ScriptPath"
-Write-Host "Config Path         : $ConfigPath"
-Write-Host "Password File       : $DefaultPWDFile"
-Write-Host "NAT Host Name       : $NAT_HOSTNAME"
-Write-Host "Domain              : $domain"
+Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: Default Values ----------------------------------------------" 
+Write-Host "      Script Name       : $ScriptName"
+Write-Host "      Script fq         : $ScriptNameFull"
+Write-Host "      Script Path       : $ScriptPath"
+Write-Host "      Config Path       : $ConfigPath"
+Write-Host "      Config Script     : $ConfigScript"
+Write-Host "      Password File     : $DefaultPWDFile"
+Write-Host "      Host              : $NAT_HOSTNAME"
+Write-Host "      Domain            : $domain"
+Write-Host "      REALM             : $REALM"
+Write-Host "      Base DN           : $domainDn"
+Write-Host "      AD Domain         : $adDomain"
+Write-Host "      Domain Base DN    : $domainDn"
+Write-Host "      Company Name      : $company"
+Write-Host "      Root CA           : $RootCAFile"
+
+Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
 
 # list OS information.
-Write-Host '- OS Details -----------------------------------------------'
+Write-Host 'INFO: OS Details -----------------------------------------------'
 New-Object -TypeName PSObject -Property @{
     Is64BitOperatingSystem = [Environment]::Is64BitOperatingSystem
 } | Format-Table -AutoSize
 [Environment]::OSVersion | Format-Table -AutoSize
 
 # list all the installed Windows features.
-echo 'Installed Windows Features:'
-Write-Host '- Installed Windows Features -------------------------------'
+Write-Host 'INFO: Installed Windows Features -------------------------------'
 Get-WindowsFeature | Where Installed | Format-Table -AutoSize | Out-String -Width 2000
 
 # see https://gist.github.com/IISResetMe/36ef331484a770e23a81
@@ -82,13 +88,13 @@ function Get-MachineSID {
     }
 }
 
-echo "This Computer SID is $(Get-MachineSID)"
+Write-Host "INFO: This Computer SID is $(Get-MachineSID)"
 Write-Host ''
-Write-Host '==============================================================='
-Write-Host ' Successfully finish setup AD VM '
-Write-Host "  Host      : $NAT_HOSTNAME"
-Write-Host "  Domain    : $domain"
-Write-Host '==============================================================='
-
-Write-Host '= Finish AD Summary ==========================================='
+Write-Host "INFO: -------------------------------------------------------------" 
+Write-Host 'INFO: Successfully finish setup AD '
+Write-Host "INFO: Host      : $NAT_HOSTNAME"
+Write-Host "INFO: Domain    : $domain"
+Write-Host "INFO: -------------------------------------------------------------" 
+Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: -------------------------------------------------------------" 
 # --- EOF --------------------------------------------------------------------
