@@ -16,12 +16,6 @@
 # Modified...:
 # see git revision history for more information on changes/updates
 # ---------------------------------------------------------------------------
-
-# processing commandline parameter
-param (
-    [string]$domain = "trivadislabs.com"
- )
-
 # - Variables ---------------------------------------------------------------
 $ScriptNameFull = $MyInvocation.MyCommand.Path
 $ScriptName     = $MyInvocation.MyCommand.Name
@@ -31,6 +25,15 @@ $ConfigPath     = (Split-Path $ScriptPath -Parent) + "\config"
 $DefaultPWDFile = $ConfigPath + "\default_pwd_windows.txt"
 $NAT_HOSTNAME=hostname
 Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
+
+# call Config Script
+if ((Test-Path $ConfigScript)) {
+    Write-Host "INFO : load default values from $DefaultPWDFile"
+    . $ConfigScript
+} else {
+    Write-Error "ERROR: cloud not load default values"
+    exit 1
+}
 # - EOF Variables -----------------------------------------------------------
 
 # - Main --------------------------------------------------------------------

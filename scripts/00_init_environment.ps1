@@ -43,7 +43,7 @@ $UserCSVFile            = $ConfigPath + "\users_ad.csv"
 $HostCSVFile            = $ConfigPath + "\hosts.csv"
 # Get the default NetBios Name from the domain name
 if (!$netbiosDomain) { 
-    $netbiosDomain  = $domain.ToUpper() -replace "\.\w*$",""
+    $netbiosDomain  = $NetworkDomainName.ToUpper() -replace "\.\w*$",""
 }
 
 # get the $ServerAddress if not defined

@@ -41,6 +41,15 @@ $domain         = $adDomain.DNSRoot
 $domainDn       = $adDomain.DistinguishedName
 $company        = (Get-Culture).textinfo.totitlecase($adDomain.Name)
 $RootCAFile     = $ConfigPath + $domain + ".cer"
+
+# call Config Script
+if ((Test-Path $ConfigScript)) {
+    Write-Host "INFO : load default values from $DefaultPWDFile"
+    . $ConfigScript
+} else {
+    Write-Error "ERROR: cloud not load default values"
+    exit 1
+}
 # - EOF Variables -----------------------------------------------------------
 
 # - Configure Domain --------------------------------------------------------

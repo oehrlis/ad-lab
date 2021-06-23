@@ -23,7 +23,7 @@
 # - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
 $ScriptNameFull = $MyInvocation.MyCommand.Path
-$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_config.ps1"
+$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
 $Hostname       = (Hostname)
 # - EOF Default Values ---------------------------------------------------------
 

@@ -35,7 +35,6 @@ $domain         = $adDomain.DNSRoot
 $REALM          = $adDomain.DNSRoot.ToUpper()
 $domainDn       = $adDomain.DistinguishedName
 $NAT_HOSTNAME   = hostname
-$hostfile       = "C:\vagrant_common\config\hosts.csv"
 
 # - Variables ---------------------------------------------------------------
 $ScriptNameFull = $MyInvocation.MyCommand.Path
@@ -45,6 +44,15 @@ $ConfigPath = (Split-Path $ScriptPath -Parent) + "\config"
 # set file name for default password
 $DefaultPWDFile = $ConfigPath + "\default_pwd_windows.txt"
 $hostfile = $ConfigPath + "\hosts.csv"
+
+# call Config Script
+if ((Test-Path $ConfigScript)) {
+    Write-Host "INFO : load default values from $DefaultPWDFile"
+    . $ConfigScript
+} else {
+    Write-Error "ERROR: cloud not load default values"
+    exit 1
+}
 # - EOF Variables -----------------------------------------------------------
 
 # - Configure Domain --------------------------------------------------------
