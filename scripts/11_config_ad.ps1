@@ -184,6 +184,15 @@ foreach ($HostRecord in $HostList)
         -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true `
         -KerberosEncryptionType "AES128, AES256"
 }
+
+if (!(Get-ADUser -Filter "sAMAccountName -eq 'oracle'")) {
+    Write-Host "INFO: User oracle does not exist. Add new one"
+    New-ADUser -SamAccountName "oracle" -Name "oracle" -DisplayName "oracle" `
+        -Description "Oracle Service User" -Path $UsersDN  `
+        -AccountPassword $SecurePassword -Enabled $true `
+        -PasswordNeverExpires $true
+}
+
 # change oracle privileges
 Add-ADGroupMember -Identity "Domain Admins"     -Members oracle
 Add-ADGroupMember -Identity "Enterprise Admins" -Members oracle
