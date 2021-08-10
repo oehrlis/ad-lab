@@ -98,7 +98,7 @@ if ((gwmi win32_computersystem).partofdomain -eq $false) {
     $newDNSServers = $DNS1Address, $DNS2Address
     $adapters = Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object { $_.IPAddress -And ($_.IPAddress).StartsWith($subnet) }
     if ($adapters) {
-        Write-Host Setting DNS
+        Write-Host "INFO: Setting DNS"
         $adapters | ForEach-Object {$_.SetDNSServerSearchOrder($newDNSServers)}
     }
 }

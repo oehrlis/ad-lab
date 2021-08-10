@@ -33,6 +33,8 @@ if ((Test-Path $ConfigScript)) {
     Write-Error "ERROR: cloud not load default values"
     exit 1
 }
+
+$SecurePassword = $PlainPassword | ConvertTo-SecureString -AsPlainText -Force
 # - EOF Variables --------------------------------------------------------------
 
 Import-Module ActiveDirectory
@@ -55,13 +57,11 @@ Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity walters
 Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity renton
 Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity leitner
 Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity blake
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity turner
 Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity ward
 Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity moneypenny
 Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity scott
 Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity smith
 Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity adams
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity ford
 Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity blofeld
 Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity miller
 Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity clark

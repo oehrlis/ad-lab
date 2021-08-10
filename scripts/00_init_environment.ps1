@@ -23,14 +23,15 @@ $netbiosDomain      = ""                    # NetBios Name defaults to uppercase
 $Subnet             = ""                    # SubNet generated from IP address if omitted
 $ADDomainMode       = "Default"             # AD Domain Mode e.g Win2008, Win2008R2, Win2012, Win2012R2, WinThreshold, Default
 $ServerAddress      = ""                    # IP address of the DC if ommited 
-$DNS1Address        = ""                    # IP Address of the first DNS server
-$DNS2Address        = ""                    # IP Address of the second DNS server
+$DNS1Address        = "8.8.8.8"             # IP Address of the first DNS server
+$DNS2Address        = "4.4.4.4"             # IP Address of the second DNS server
 $PlainPassword      = ""                    # default Password use to setup. If empty it will be taken from default_pwd_windows.txt or generated
 $PasswordLength     = 15                    # password length if password is generated
 $ScriptDebug        = ""                    # set to any value to enable debug messages 
 $People             = "People"              # OU Name used for user entries
 $Groups             = "Groups"              # OU Name used for group entries
 $Company            = "Trivadis LAB"        # Company name
+$OracleBase         = "C:\u00\app\oracle"   # Oracle Base Folder
 # - End of Customization -------------------------------------------------------
 
 # - Default Values -------------------------------------------------------------
@@ -120,6 +121,7 @@ if ($ScriptDebug) {
     Write-Host "    Company Name          : $Company"
     Write-Host "    User CSV File         : $UserCSVFile"
     Write-Host "    Host CSV File         : $HostCSVFile"
+    Write-Host "    Oracle Base Folder    : $OracleBase"
     
     Write-Host "INFO: -------------------------------------------------------------"
 }

@@ -17,7 +17,7 @@
 # see git revision history for more information on changes/updates
 # ---------------------------------------------------------------------------
 # - Variables ---------------------------------------------------------------
-$# - Default Values -------------------------------------------------------------
+# - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
 $ScriptNameFull = $MyInvocation.MyCommand.Path
 $ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
@@ -32,6 +32,13 @@ if ((Test-Path $ConfigScript)) {
     Write-Error "ERROR: cloud not load default values"
     exit 1
 }
+
+$adDomain       = Get-ADDomain
+$domain         = $adDomain.DNSRoot
+$domainDn       = $adDomain.DistinguishedName
+$PeopleDN       = "ou=$People,$domainDn"
+$UsersDN        = "cn=Users,$domainDn"
+$GroupDN        = "ou=$Groups,$domainDn"
 # - EOF Variables --------------------------------------------------------------
 
 # - Main --------------------------------------------------------------------
@@ -44,7 +51,7 @@ Write-Host "      Config Path       : $ConfigPath"
 Write-Host "      Config Script     : $ConfigScript"
 Write-Host "      Password File     : $DefaultPWDFile"
 Write-Host "      Host              : $NAT_HOSTNAME"
-Write-Host "      Domain            : $domain"
+Write-Host "      Domain            : $NetworkDomainName"
 Write-Host "      REALM             : $REALM"
 Write-Host "      Base DN           : $domainDn"
 Write-Host "      AD Domain         : $adDomain"
@@ -52,7 +59,7 @@ Write-Host "      Domain Base DN    : $domainDn"
 Write-Host "      Company Name      : $company"
 Write-Host "      Root CA           : $RootCAFile"
 
-Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
+Get-DnsServerResourceRecord -ZoneName $NetworkDomainName -Name $NAT_HOSTNAME
 
 # list OS information.
 Write-Host 'INFO: OS Details -----------------------------------------------'
@@ -93,7 +100,7 @@ Write-Host ''
 Write-Host "INFO: -------------------------------------------------------------" 
 Write-Host 'INFO: Successfully finish setup AD '
 Write-Host "INFO: Host      : $NAT_HOSTNAME"
-Write-Host "INFO: Domain    : $domain"
+Write-Host "INFO: Domain    : $NetworkDomainName"
 Write-Host "INFO: -------------------------------------------------------------" 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
 Write-Host "INFO: -------------------------------------------------------------" 
