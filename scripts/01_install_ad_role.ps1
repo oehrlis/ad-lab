@@ -30,7 +30,7 @@ if ((Test-Path $ConfigScript)) {
     Write-Host "INFO : load default values from $DefaultPWDFile"
     . $ConfigScript
 } else {
-    Write-Error "ERROR: cloud not load default values"
+    Write-Error "ERROR: could not load default values"
     exit 1
 }
 # - EOF Variables --------------------------------------------------------------

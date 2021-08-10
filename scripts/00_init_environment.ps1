@@ -40,8 +40,18 @@ $ConfigScriptNameFull   = $MyInvocation.MyCommand.Path
 $ScriptPath             = (Split-Path $ConfigScriptNameFull -Parent)
 $ConfigPath             = (Split-Path $ScriptPath -Parent) + "\config"
 $DefaultPWDFile         = $ConfigPath + "\default_pwd_windows.txt"
+$DefaultConfigFile      = $ConfigPath + "\default_configuration.txt"
 $UserCSVFile            = $ConfigPath + "\users_ad.csv"
 $HostCSVFile            = $ConfigPath + "\hosts.csv"
+
+# call Config Script
+if ((Test-Path $DefaultConfigFile)) {
+    Write-Host "INFO : load default config values from $DefaultConfigFile"
+    $DefaultConfigHash = Get-Content -raw -Path $DefaultConfigFile | ConvertFrom-StringData
+} else {
+    Write-Error "WARN : could not load default values"
+}
+
 # Get the default NetBios Name from the domain name
 if (!$netbiosDomain) { 
     $netbiosDomain  = $NetworkDomainName.ToUpper() -replace "\.\w*$",""
