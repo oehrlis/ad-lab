@@ -82,14 +82,14 @@ if (!$PlainPassword) {
         # generate a password if password from file is empty
         if (!$PlainPassword) {
             Write-Host "INFO: Default password from $DefaultPWDFile seems empty, generate new password"
-            $PlainPassword = (-join ((48..57) + (97..122) | Get-Random -Count $PasswordLength | % {[char]$_}))
+            $PlainPassword = (-join ((48..57) + (65..90) + (97..122) | Get-Random -Count $PasswordLength | % {[char]$_}))
         } else {
             $PlainPassword=$PlainPassword.trim()
         }
     } else {
         # generate a new password
         Write-Error "INFO: Generate new password"
-        $PlainPassword = (-join ((48..57) + (97..122) | Get-Random -Count $PasswordLength | % {[char]$_}))
+        $PlainPassword = (-join ((48..57) + (65..90) + (97..122) | Get-Random -Count $PasswordLength | % {[char]$_}))
     } 
 } else {
     Write-Host "INFO: Using password provided via config file"
