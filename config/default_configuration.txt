@@ -1,11 +1,11 @@
 # config file to define default values for AD-Lab
-NetworkDomainName  = trivadislabs.com
-ADDomainMode       = default
-ServerAddress      = 
-DNS1Address        = 8.8.8.8
-DNS2Address        = 4.4.4.4
-PlainPassword      = 
-PasswordLength     = 15
-People             = People
-Groups             = Groups
-Company            = Trivadis LAB
+NetworkDomainName       = trivadislabs.com
+ADDomainMode            = default
+ServerAddress           = 
+DNS1ClientServerAddress = 8.8.8.8
+DNS2ClientServerAddress = 4.4.4.4
+PlainPassword           = 
+PasswordLength          = 15
+People                  = People
+Groups                  = Groups
+Company                 = Trivadis LAB
