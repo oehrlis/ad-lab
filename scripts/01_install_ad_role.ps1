@@ -50,8 +50,8 @@ Write-Host "      NetBios Name          : $netbiosDomain"
 Write-Host "      AD Domain Mode        : $ADDomainMode"
 Write-Host "      Host IP Address       : $ServerAddress"
 Write-Host "      Subnet                : $Subnet"
-Write-Host "      DNS Server 1          : $DNS1Address"
-Write-Host "      DNS Server 2          : $DNS2Address"
+Write-Host "      DNS Server 1          : $DNS1ClientServerAddress"
+Write-Host "      DNS Server 2          : $DNS2ClientServerAddress"
 Write-Host "      Default Password      : $PlainPassword"
 Write-Host "INFO: -------------------------------------------------------------" 
 
@@ -96,7 +96,7 @@ if ((gwmi win32_computersystem).partofdomain -eq $false) {
         -Force:$true
         
     Write-Host "INFO: Configure network adapter"
-    $newDNSServers = $DNS1Address, $DNS2Address
+    $newDNSServers = $DNS1ClientServerAddress, $DNS2ClientServerAddress
     $adapters = Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object { $_.IPAddress -And ($_.IPAddress).StartsWith($subnet) }
     if ($adapters) {
         Write-Host "INFO: Setting DNS"

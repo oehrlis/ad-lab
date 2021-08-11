@@ -82,7 +82,7 @@ if ($DefaultConfigHash.netbiosDomain) {
 }
 
 if ($DefaultConfigHash.ADDomainMode) {
-    $NetworkDomainName = $DefaultConfigHash.ADDomainMode
+    $ADDomainMode = $DefaultConfigHash.ADDomainMode
 }
 
 if ($DefaultConfigHash.ServerAddress) {
