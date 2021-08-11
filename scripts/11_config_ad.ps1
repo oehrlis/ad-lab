@@ -197,6 +197,13 @@ if (!(Get-ADUser -Filter "sAMAccountName -eq 'oracle'")) {
 Add-ADGroupMember -Identity "Domain Admins"     -Members oracle
 Add-ADGroupMember -Identity "Enterprise Admins" -Members oracle
 
+# change vagrant privileges
+if (Get-ADUser -Filter "sAMAccountName -eq 'vagrant'") {
+    Write-Host "INFO: User vagrant does exist. Change privileges."
+    Add-ADGroupMember -Identity "Domain Admins"     -Members vagrant
+    Add-ADGroupMember -Identity "Enterprise Admins" -Members vagrant    
+}
+
 Write-Host "INFO: Done configuring AD -----------------------------------------" 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
 Write-Host "INFO: -------------------------------------------------------------" 
