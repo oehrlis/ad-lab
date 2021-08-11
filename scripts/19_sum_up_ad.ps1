@@ -39,6 +39,10 @@ $domainDn       = $adDomain.DistinguishedName
 $PeopleDN       = "ou=$People,$domainDn"
 $UsersDN        = "cn=Users,$domainDn"
 $GroupDN        = "ou=$Groups,$domainDn"
+
+# get the IP Address of the NAT Network
+$NAT_IP=(Get-WmiObject -Class Win32_NetworkAdapterConfiguration | where {$_.DefaultIPGateway -ne $null}).IPAddress | select-object -first 1
+$NAT_HOSTNAME=hostname
 # - EOF Variables --------------------------------------------------------------
 
 # - Main --------------------------------------------------------------------
