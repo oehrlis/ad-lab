@@ -5,7 +5,7 @@
 # Name.......: 01_install_ad_role.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2021.06.19
+# Date.......: 2021.08.16
 # Revision...: 
 # Purpose....: Script to install Active Directory Role
 # Notes......: ...
@@ -58,10 +58,10 @@ Write-Host "INFO: -------------------------------------------------------------"
 Write-Host "INFO: Install AD Role" 
 # initiate AD setup if system is not yet part of a domain
 if ((gwmi win32_computersystem).partofdomain -eq $false) {
-    Write-Host "INFO: Installing RSAT tools"
+    Write-Host "INFO: Installing AD-Domain-Services"
 
     Import-Module ServerManager
-    Add-WindowsFeature RSAT-AD-PowerShell,RSAT-AD-AdminCenter,RSAT-ADDS-Tools
+    Install-WindowsFeature -name AD-Domain-Services -IncludeManagementTools
 
     Write-Host "INFO: Relax password complexity"
     # Disable password complexity policy
@@ -78,23 +78,26 @@ if ((gwmi win32_computersystem).partofdomain -eq $false) {
     $adminUser.SetPassword($PlainPassword)
 
     Write-Host "INFO: Creating domain controller"
-    # Create AD Forest for Windows Server 2012 R2
-    Install-WindowsFeature AD-domain-services
-    Import-Module ADDSDeployment
-    Install-ADDSForest `
-        -SafeModeAdministratorPassword $SecurePassword `
-        -CreateDnsDelegation:$false `
-        -DatabasePath "C:\Windows\NTDS" `
-        -DomainMode $ADDomainMode `
-        -ForestMode $ADDomainMode `
-        -DomainName $NetworkDomainName `
-        -DomainNetbiosName $netbiosDomain `
-        -InstallDns:$true `
-        -LogPath "C:\Windows\NTDS" `
-        -NoRebootOnCompletion:$true `
-        -SysvolPath "C:\Windows\SYSVOL" `
-        -Force:$true
-        
+    try {
+        Import-Module ADDSDeployment
+        Install-ADDSForest `
+            -SafeModeAdministratorPassword $SecurePassword `
+            -CreateDnsDelegation:$false `
+            -DatabasePath "C:\Windows\NTDS" `
+            -DomainMode $ADDomainMode `
+            -ForestMode $ADDomainMode `
+            -DomainName $NetworkDomainName `
+            -DomainNetbiosName $netbiosDomain `
+            -InstallDns:$true `
+            -LogPath "C:\Windows\NTDS" `
+            -NoRebootOnCompletion:$true `
+            -SysvolPath "C:\Windows\SYSVOL" `
+            -Force:$true
+    } catch {
+        Write-Host 'ERR : Creating domain controller.'
+        Write-Host $_.Exception.Message
+    }
+
     Write-Host "INFO: Configure network adapter"
     $newDNSServers = $DNS1ClientServerAddress, $DNS2ClientServerAddress
     $adapters = Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object { $_.IPAddress -And ($_.IPAddress).StartsWith($subnet) }

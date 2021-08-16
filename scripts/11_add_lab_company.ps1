@@ -2,12 +2,12 @@
 # Trivadis AG, Infrastructure Managed Services
 # Saegereistrasse 29, 8152 Glattbrugg, Switzerland
 # ------------------------------------------------------------------------------
-# Name.......: 11_config_ad.ps1
+# Name.......: 11_add_lab_company.ps1.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
 # Date.......: 2021.06.23
 # Revision...: 
-# Purpose....: Script to configure Active Directory
+# Purpose....: Script to add LAB company to Active Directory
 # Notes......: ...
 # Reference..: 
 # License....: Apache License Version 2.0, January 2004 as shown
@@ -81,7 +81,8 @@ Write-Host "INFO: -------------------------------------------------------------"
 # - Configure Domain --------------------------------------------------------
 Import-Module ActiveDirectory           # load AD PS module
 
-# # add People OU...
+# add People OU...
+Write-Host "INFO: Adding LAB company organisation -----------------------------" 
 Write-Host "INFO: Add organizational units for departments" 
 NEW-ADOrganizationalUnit -name $People -path $domainDn
 NEW-ADOrganizationalUnit -name "Senior Management" -path $PeopleDN
@@ -171,40 +172,7 @@ New-ADGroup -Name "$Company Management" -SamAccountName "$Company Management" `
 Add-ADGroupMember -Identity "$Company Management" -Members clark,blofeld,moneypenny
 Add-ADGroupMember -Identity "$Company Management" -Members king,rider,fleming,leitner
 
-# create service principle
-Write-Host "INFO: Create service principles" 
-Write-Host "INFO: Process hosts from CSV ($HostCSVFile)" 
-$HostList = Import-Csv -Path $HostCSVFile   
-foreach ($HostRecord in $HostList)
-{
-    $Hostname   = $HostRecord.Name
-    Write-Host "INFO: Add service principle for $Hostname" 
-    New-ADUser -SamAccountName $Hostname -Name $Hostname `
-        -DisplayName $Hostname -Description "Kerberos Service User for $Hostname" `
-        -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true `
-        -KerberosEncryptionType "AES128, AES256"
-}
-
-if (!(Get-ADUser -Filter "sAMAccountName -eq 'oracle'")) {
-    Write-Host "INFO: User oracle does not exist. Add new one"
-    New-ADUser -SamAccountName "oracle" -Name "oracle" -DisplayName "oracle" `
-        -Description "Oracle Service User" -Path $UsersDN  `
-        -AccountPassword $SecurePassword -Enabled $true `
-        -PasswordNeverExpires $true
-}
-
-# change oracle privileges
-Add-ADGroupMember -Identity "Domain Admins"     -Members oracle
-Add-ADGroupMember -Identity "Enterprise Admins" -Members oracle
-
-# change vagrant privileges
-if (Get-ADUser -Filter "sAMAccountName -eq 'vagrant'") {
-    Write-Host "INFO: User vagrant does exist. Change privileges."
-    Add-ADGroupMember -Identity "Domain Admins"     -Members vagrant
-    Add-ADGroupMember -Identity "Enterprise Admins" -Members vagrant    
-}
-
-Write-Host "INFO: Done configuring AD -----------------------------------------" 
+Write-Host "INFO: Done adding LAB company organisation ------------------------" 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
 Write-Host "INFO: -------------------------------------------------------------" 
 # --- EOF --------------------------------------------------------------------

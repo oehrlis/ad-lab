@@ -80,7 +80,7 @@ if ((Test-Path $DefaultPWDFile)) {
 Write-Host 'INFO : Create reverse lookup zone...'
 # create reverse lookup zone
 Add-DnsServerPrimaryZone -NetworkID "10.0.0.0/24" -ReplicationScope "Forest"
-
+Add-DnsServerPrimaryZone -Name "west02.contoso.com" -ZoneFile "west02.contoso.com.dns"
 # temporary remove AD server record
 #Remove-DnsServerResourceRecord -ZoneName $domain -RRType "A" -Name $NAT_HOSTNAME -Force
 

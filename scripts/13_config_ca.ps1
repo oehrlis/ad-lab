@@ -91,16 +91,20 @@ $caCommonName = "$company Enterprise Root CA"
 # NB to install a EnterpriseRootCa the current user must be on the
 #    Enterprise Admins group. 
 Write-Host 'INFO : Configure ADCS-Cert-Authority...'
-
-Install-AdcsCertificationAuthority `
-    -CAType EnterpriseRootCa  `
-    -CACommonName $caCommonName `
-    -CryptoProviderName "RSA#Microsoft Software Key Storage Provider"  `
-    -KeyLength 4096 `
-    -HashAlgorithmName SHA256 `
-    -ValidityPeriod Years `
-    -ValidityPeriodUnits 5 `
-    -Force
+try {
+    Install-AdcsCertificationAuthority `
+        -CAType EnterpriseRootCa  `
+        -CACommonName $caCommonName `
+        -CryptoProviderName "RSA#Microsoft Software Key Storage Provider"  `
+        -KeyLength 4096 `
+        -HashAlgorithmName SHA256 `
+        -ValidityPeriod Years `
+        -ValidityPeriodUnits 5 `
+        -Force
+} catch {
+    Write-Host 'ERR : Configure ADCS-Cert-Authority...'
+    Write-Host $_.Exception.Message
+}
 
 Write-Host 'INFO : Export root CA to $RootCAFile ...'
 $cmd = 'certutil -ca.cert ' + $RootCAFile
