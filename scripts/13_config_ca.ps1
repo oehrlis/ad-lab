@@ -100,6 +100,13 @@ try {
 } catch {
     Write-Host 'ERR : Configure ADCS-Cert-Authority...'
     Write-Host $_.Exception.Message
+
+    Write-Host "INFO : Add shortcut for $ScriptName"
+    $WScriptShell           = New-Object -ComObject WScript.Shell
+    $Shortcut               = $WScriptShell.CreateShortcut("$env:Public\Desktop\$ScriptName.lnk")
+    $Shortcut.TargetPath    = "powershell.exe"
+    $Shortcut.Arguments     = "-ExecutionPolicy Bypass -File $ScriptNameFull"
+    $Shortcut.Save()
 }
 
 Write-Host 'INFO : Export root CA to $RootCAFile ...'
