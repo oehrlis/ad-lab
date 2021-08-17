@@ -72,10 +72,14 @@ Write-Host "      Domain            : $domain"
 Write-Host "      REALM             : $REALM"
 Write-Host "      Base DN           : $domainDn"
 
-Write-Host 'INFO : Create reverse lookup zone...'
-# create reverse lookup zone
-Add-DnsServerPrimaryZone -NetworkID "10.0.0.0/24" -ReplicationScope "Forest"
-Add-DnsServerPrimaryZone -Name "west02.contoso.com" -ZoneFile "west02.contoso.com.dns"
+Write-Host "INFO : Create reverse lookup zone for network $Subnet.0/24..."
+try {
+    I# create reverse lookup zone
+    Add-DnsServerPrimaryZone -NetworkID "$Subnet.0/24" -ReplicationScope "Forest"
+} catch {
+    Write-Host 'ERR : reate reverse lookup zone...'
+    Write-Host $_.Exception.Message
+}
 # temporary remove AD server record
 #Remove-DnsServerResourceRecord -ZoneName $domain -RRType "A" -Name $NAT_HOSTNAME -Force
 
