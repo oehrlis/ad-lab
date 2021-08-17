@@ -1,34 +1,51 @@
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Trivadis AG, Infrastructure Managed Services
 # Saegereistrasse 29, 8152 Glattbrugg, Switzerland
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Name.......: 28_config_misc.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2021.06.23
+# Date.......: 2021.08.17
 # Revision...: 
 # Purpose....: Script to display a summary of Active Directory Domain
 # Notes......: ...
 # Reference..: 
 # License....: Apache License Version 2.0, January 2004 as shown
 #              at http://www.apache.org/licenses/
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Modified...:
 # see git revision history for more information on changes/updates
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-# processing commandline parameter
-param (
-    [string]$domain = "trivadislabs.com",
-    [string]$ip = "10.0.0.4"
- )
+# - Default Values -------------------------------------------------------------
+$ScriptName     = $MyInvocation.MyCommand.Name
+$ScriptNameFull = $MyInvocation.MyCommand.Path
+$Hostname       = (Hostname)
+$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
+# - EOF Default Values ---------------------------------------------------------
 
-# - Main --------------------------------------------------------------------
+# - Initialisation -------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
+
+# call Config Script
+if ((Test-Path $ConfigScript)) {
+    Write-Host "INFO : load default values from $DefaultPWDFile"
+    . $ConfigScript
+} else {
+    Write-Error "ERROR: could not load default values"
+    exit 1
+}
+# - EOF Initialisation ---------------------------------------------------------
+
+# - Variables ------------------------------------------------------------------
 # get the IP Address of the NAT Network
 $NAT_IP=(Get-WmiObject -Class Win32_NetworkAdapterConfiguration | where {$_.DefaultIPGateway -ne $null}).IPAddress | select-object -first 1
 $NAT_HOSTNAME=hostname
+# - EOF Variables --------------------------------------------------------------
 
-Write-Host '= Start setup part 8 ======================================='
+# - Main -----------------------------------------------------------------------
+Write-Host "INFO: Default Values -----------------------------------------------" 
 Write-Host "Domain              : $domain"
 Write-Host "IP                  : $ip"
 Write-Host "NAT IP              : $NAT_IP"
@@ -53,12 +70,14 @@ if($NAT_RECORD -eq $null){
 
 Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
 
-# Write-Host '- Configure Windows Update -------------------------------------'
+# Write-Host '- Configure Windows Update ---------------------------------------'
 # Install-PackageProvider -Name NuGet -Force
 # Install-Module -Name PSWindowsUpdate -Force
 # Get-Package -Name PSWindowsUpdate
 # Install windows updates currently does not work
 # Install-WindowsUpdate -MicrosoftUpdate -AcceptAll -AutoReboot
 
-Write-Host '= Finish part 8 ============================================='
-# --- EOF --------------------------------------------------------------------
+
+Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: ==============================================================" 
+# --- EOF ----------------------------------------------------------------------

@@ -5,7 +5,7 @@
 # Name.......: 12_config_dns.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2021.06.23
+# Date.......: 2021.08.17
 # Revision...: 
 # Purpose....: Script to configure DNS server
 # Notes......: ...
@@ -17,29 +17,16 @@
 # see git revision history for more information on changes/updates
 # ------------------------------------------------------------------------------
 
-# wait until we can access the AD. this is needed to prevent errors like:
-#   Unable to find a default server with Active Directory Web Services running.
-while ($true) {
-    try {
-        get-dnsserver | Out-Null
-        break
-    } catch {
-        Write-Host 'Wait 30 seconds to get DNS ready...'
-        Start-Sleep -Seconds 30
-    }
-}
-
-# - Variables ---------------------------------------------------------------
-$adDomain       = Get-ADDomain
-$domain         = $adDomain.DNSRoot
-$REALM          = $adDomain.DNSRoot.ToUpper()
-$domainDn       = $adDomain.DistinguishedName
-$NAT_HOSTNAME   = hostname
-
-# - Variables ---------------------------------------------------------------
-$ScriptNameFull = $MyInvocation.MyCommand.Path
+# - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
+$ScriptNameFull = $MyInvocation.MyCommand.Path
+$Hostname       = (Hostname)
 $ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
+# - EOF Default Values ---------------------------------------------------------
+
+# - Initialisation -------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 
 # call Config Script
 if ((Test-Path $ConfigScript)) {
@@ -49,12 +36,22 @@ if ((Test-Path $ConfigScript)) {
     Write-Error "ERROR: cloud not load default values"
     exit 1
 }
-# - EOF Variables -----------------------------------------------------------
 
-# - Configure Domain --------------------------------------------------------
-# - Main --------------------------------------------------------------------
-Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: Default Values ----------------------------------------------" 
+# wait until we can access the AD. this is needed to prevent errors like:
+#   Unable to find a default server with Active Directory Web Services running.
+while ($true) {
+    try {
+        Get-ADDomain | Out-Null
+        break
+    } catch {
+        Write-Host 'Wait 15 seconds to get AD Domain ready...'
+        Start-Sleep -Seconds 15
+    }
+}
+# - EOF Initialisation ---------------------------------------------------------
+
+# - Main -----------------------------------------------------------------------
+Write-Host "INFO: Default Values -----------------------------------------------" 
 Write-Host "      Script Name       : $ScriptName"
 Write-Host "      Script fq         : $ScriptNameFull"
 Write-Host "      Script Path       : $ScriptPath"
@@ -129,7 +126,7 @@ $NAT_HOSTNAME=hostname
 # get DNS Server Records
 Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
 
-Write-Host "INFO: Done configuring DNS ----------------------------------------" 
+Write-Host "INFO: Done configuring DNS -----------------------------------------" 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: -------------------------------------------------------------" 
-# --- EOF --------------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+# --- EOF ----------------------------------------------------------------------

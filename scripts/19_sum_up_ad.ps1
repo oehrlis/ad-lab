@@ -1,29 +1,33 @@
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Trivadis AG, Infrastructure Managed Services
 # Saegereistrasse 29, 8152 Glattbrugg, Switzerland
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Name.......: 29_sum_up_ad.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2021.06.23
+# Date.......: 2021.08.17
 # Revision...: 
 # Purpose....: Script to display a summary of Active Directory Domain
 # Notes......: ...
 # Reference..: 
 # License....: Apache License Version 2.0, January 2004 as shown
 #              at http://www.apache.org/licenses/
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Modified...:
 # see git revision history for more information on changes/updates
-# ---------------------------------------------------------------------------
-# - Variables ---------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
 # - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
 $ScriptNameFull = $MyInvocation.MyCommand.Path
-$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
 $Hostname       = (Hostname)
+$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
 # - EOF Default Values ---------------------------------------------------------
-# - Main -----------------------------------------------------------------------
+
+# - Initialisation -------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
+
 # call Config Script
 if ((Test-Path $ConfigScript)) {
     Write-Host "INFO : load default values from $DefaultPWDFile"
@@ -33,6 +37,20 @@ if ((Test-Path $ConfigScript)) {
     exit 1
 }
 
+# wait until we can access the AD. this is needed to prevent errors like:
+#   Unable to find a default server with Active Directory Web Services running.
+while ($true) {
+    try {
+        Get-ADDomain | Out-Null
+        break
+    } catch {
+        Write-Host 'Wait 15 seconds to get AD Domain ready...'
+        Start-Sleep -Seconds 15
+    }
+}
+# - EOF Initialisation ---------------------------------------------------------
+
+# - Variables ------------------------------------------------------------------
 $adDomain       = Get-ADDomain
 $domain         = $adDomain.DNSRoot
 $domainDn       = $adDomain.DistinguishedName
@@ -45,9 +63,8 @@ $NAT_IP=(Get-WmiObject -Class Win32_NetworkAdapterConfiguration | where {$_.Defa
 $NAT_HOSTNAME=hostname
 # - EOF Variables --------------------------------------------------------------
 
-# - Main --------------------------------------------------------------------
-Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: Default Values ----------------------------------------------" 
+# - Main -----------------------------------------------------------------------
+Write-Host "INFO: Default Values -----------------------------------------------" 
 Write-Host "      Script Name       : $ScriptName"
 Write-Host "      Script fq         : $ScriptNameFull"
 Write-Host "      Script Path       : $ScriptPath"
@@ -66,14 +83,14 @@ Write-Host "      Root CA           : $RootCAFile"
 Get-DnsServerResourceRecord -ZoneName $NetworkDomainName -Name $NAT_HOSTNAME
 
 # list OS information.
-Write-Host 'INFO: OS Details -----------------------------------------------'
+Write-Host 'INFO: OS Details ---------------------------------------------------'
 New-Object -TypeName PSObject -Property @{
     Is64BitOperatingSystem = [Environment]::Is64BitOperatingSystem
 } | Format-Table -AutoSize
 [Environment]::OSVersion | Format-Table -AutoSize
 
 # list all the installed Windows features.
-Write-Host 'INFO: Installed Windows Features -------------------------------'
+Write-Host 'INFO: Installed Windows Features -----------------------------------'
 Get-WindowsFeature | Where Installed | Format-Table -AutoSize | Out-String -Width 2000
 
 # see https://gist.github.com/IISResetMe/36ef331484a770e23a81
@@ -101,11 +118,11 @@ function Get-MachineSID {
 
 Write-Host "INFO: This Computer SID is $(Get-MachineSID)"
 Write-Host ''
-Write-Host "INFO: -------------------------------------------------------------" 
+Write-Host "INFO: --------------------------------------------------------------" 
 Write-Host 'INFO: Successfully finish setup AD '
 Write-Host "INFO: Host      : $NAT_HOSTNAME"
 Write-Host "INFO: Domain    : $NetworkDomainName"
-Write-Host "INFO: -------------------------------------------------------------" 
+Write-Host "INFO: --------------------------------------------------------------" 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: -------------------------------------------------------------" 
-# --- EOF --------------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+# --- EOF ----------------------------------------------------------------------

@@ -17,26 +17,21 @@
 # see git revision history for more information on changes/updates
 # ---------------------------------------------------------------------------
 
-# - Customization --------------------------------------------------------------
-# - End of Customization -------------------------------------------------------
-
 # - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
-$ScriptNameFull = $MyInvocation.MyCommand.Path
-$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
 $Hostname       = (Hostname)
-# call Config Script
-if ((Test-Path $ConfigScript)) {
-    Write-Host "INFO : load default values from $DefaultPWDFile"
-    . $ConfigScript
-} else {
-    Write-Error "ERROR: cloud not load default values"
-    exit 1
-}
+# - EOF Variables --------------------------------------------------------------
 
+# - Initialisation -------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
+# - EOF Initialisation ---------------------------------------------------------
+
+# - Variables ------------------------------------------------------------------
 $SecurePassword = $PlainPassword | ConvertTo-SecureString -AsPlainText -Force
 # - EOF Variables --------------------------------------------------------------
 
+# - Main -----------------------------------------------------------------------
 Import-Module ActiveDirectory
 
 # Update group membership of Trivadis LAB Users
@@ -67,4 +62,6 @@ Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity miller
 Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity clark
 Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity king
 
-# --- EOF --------------------------------------------------------------------
+Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: ==============================================================" 
+# --- EOF ----------------------------------------------------------------------

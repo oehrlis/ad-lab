@@ -1,45 +1,44 @@
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Trivadis AG, Infrastructure Managed Services
 # Saegereistrasse 29, 8152 Glattbrugg, Switzerland
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Name.......: 28_install_oracle_client.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2021.06.23
+# Date.......: 2021.08.17
 # Revision...: 
 # Purpose....: Script to install the Oracle Client
 # Notes......: ...
 # Reference..: 
 # License....: Apache License Version 2.0, January 2004 as shown
 #              at http://www.apache.org/licenses/
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Modified...:
 # see git revision history for more information on changes/updates
-# ---------------------------------------------------------------------------
-
-
-# - Customization --------------------------------------------------------------
-# - End of Customization -------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
 $ScriptNameFull = $MyInvocation.MyCommand.Path
-$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
 $Hostname       = (Hostname)
+$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
+# - EOF Default Values ---------------------------------------------------------
+
+# - Initialisation -------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
+
 # call Config Script
 if ((Test-Path $ConfigScript)) {
     Write-Host "INFO : load default values from $DefaultPWDFile"
     . $ConfigScript
 } else {
-    Write-Error "ERROR: cloud not load default values"
+    Write-Error "ERROR: could not load default values"
     exit 1
 }
-# - EOF Variables --------------------------------------------------------------
+# - EOF Initialisation ---------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
-Write-Host "INFO: -------------------------------------------------------------" 
-Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: Default Values ----------------------------------------------" 
 Write-Host "INFO: Download Oracle Instant Client 19c --------------------------"
 New-Item -ItemType Directory -Force -Path "c:\stage"
 Invoke-WebRequest -Uri "https://download.oracle.com/otn_software/nt/instantclient/1911000/instantclient-basic-windows.x64-19.11.0.0.0dbru.zip" `
@@ -83,5 +82,5 @@ New-Item -Name "tnsnames.ora" -ItemType File
 
 Write-Host "INFO: Done installing Oracle Instant Client 19c --------------------" 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: -------------------------------------------------------------" 
-# --- EOF --------------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+# --- EOF ----------------------------------------------------------------------

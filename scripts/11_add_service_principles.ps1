@@ -5,7 +5,7 @@
 # Name.......: 11_add_service_principles.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2021.06.23
+# Date.......: 2021.08.17
 # Revision...: 
 # Purpose....: Script to configure Active Directory
 # Notes......: ...
@@ -23,11 +23,14 @@
 # - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
 $ScriptNameFull = $MyInvocation.MyCommand.Path
-$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
 $Hostname       = (Hostname)
+$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
 # - EOF Default Values ---------------------------------------------------------
 
-# - Variables ---------------------------------------------------------------
+# - Initialisation -------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
+
 # call Config Script
 if ((Test-Path $ConfigScript)) {
     Write-Host "INFO : load default values from $DefaultPWDFile"
@@ -36,18 +39,7 @@ if ((Test-Path $ConfigScript)) {
     Write-Error "ERROR: cloud not load default values"
     exit 1
 }
-$adDomain       = Get-ADDomain
-$domain         = $adDomain.DNSRoot
-$domainDn       = $adDomain.DistinguishedName
-$PeopleDN       = "ou=$People,$domainDn"
-$UsersDN        = "cn=Users,$domainDn"
-$GroupDN        = "ou=$Groups,$domainDn"
 
-$SecurePassword = ConvertTo-SecureString -AsPlainText $PlainPassword -Force
-
-# - EOF Variables --------------------------------------------------------------
-
-# - Main -----------------------------------------------------------------------
 # wait until we can access the AD. this is needed to prevent errors like:
 #   Unable to find a default server with Active Directory Web Services running.
 while ($true) {
@@ -59,10 +51,20 @@ while ($true) {
         Start-Sleep -Seconds 15
     }
 }
+# - EOF Initialisation ---------------------------------------------------------
 
-Write-Host "INFO: -------------------------------------------------------------" 
-Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: Default Values ----------------------------------------------" 
+# - Variables ------------------------------------------------------------------
+$adDomain       = Get-ADDomain
+$domain         = $adDomain.DNSRoot
+$domainDn       = $adDomain.DistinguishedName
+$PeopleDN       = "ou=$People,$domainDn"
+$UsersDN        = "cn=Users,$domainDn"
+$GroupDN        = "ou=$Groups,$domainDn"
+$SecurePassword = ConvertTo-SecureString -AsPlainText $PlainPassword -Force
+# - EOF Variables --------------------------------------------------------------
+
+# - Main -----------------------------------------------------------------------
+Write-Host "INFO: Default Values -----------------------------------------------" 
 Write-Host "      Script Name           : $ScriptName"
 Write-Host "      Script full qualified : $ScriptNameFull"
 Write-Host "      Script Path           : $ScriptPath"
@@ -76,13 +78,13 @@ Write-Host "      BaseDN                : $domainDn"
 Write-Host "      People DN             : $PeopleDN"
 Write-Host "      User DN               : $UsersDN"
 Write-Host "      Group DN              : $GroupDN"
-Write-Host "INFO: -------------------------------------------------------------" 
+Write-Host "INFO: --------------------------------------------------------------" 
 
-# - Configure Domain --------------------------------------------------------
+# - Configure Domain -----------------------------------------------------------
 Import-Module ActiveDirectory           # load AD PS module
 
 # create service principle
-Write-Host "INFO: Start configuring the service principles --------------------" 
+Write-Host "INFO: Start configuring the service principles ---------------------" 
 Write-Host "INFO: Create service principles" 
 Write-Host "INFO: Process hosts from CSV ($HostCSVFile)" 
 $HostList = Import-Csv -Path $HostCSVFile   
@@ -105,6 +107,7 @@ if (!(Get-ADUser -Filter "sAMAccountName -eq 'oracle'")) {
 }
 
 # change oracle privileges
+Write-Host "INFO: Change privileges for user oracle"
 Add-ADGroupMember -Identity "Domain Admins"     -Members oracle
 Add-ADGroupMember -Identity "Enterprise Admins" -Members oracle
 
@@ -117,5 +120,5 @@ if (Get-ADUser -Filter "sAMAccountName -eq 'vagrant'") {
 
 Write-Host "INFO: Finished configuring the service principles ------------------" 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: -------------------------------------------------------------" 
-# --- EOF --------------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+# --- EOF ----------------------------------------------------------------------

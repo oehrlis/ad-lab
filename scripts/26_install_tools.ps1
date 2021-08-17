@@ -17,27 +17,38 @@
 # see git revision history for more information on changes/updates
 # ---------------------------------------------------------------------------
 
-# - Main --------------------------------------------------------------------
-Write-Host '= Start setup part 6 ======================================='
-# - Install tools --------------------------------------------------
-Write-Host '- Installing putty, winscp and other tools -----------------'
+# - Default Values -------------------------------------------------------------
+$ScriptName     = $MyInvocation.MyCommand.Name
+$Hostname       = (Hostname)
+# - EOF Variables --------------------------------------------------------------
+
+# - Initialisation -------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
+# - EOF Initialisation ---------------------------------------------------------
+
+# - Main -----------------------------------------------------------------------
+# - Install tools --------------------------------------------------------------
+Write-Host '- Installing putty, winscp and other tools -------------------------'
 choco install --yes --no-progress --limitoutput winscp putty putty.install
 choco install --yes --no-progress --limitoutput totalcommander
 #choco install -y wsl
 
 # development
-Write-Host '- Installing DEV tools -------------------------------------'
+Write-Host '- Installing DEV tools ---------------------------------------------'
 choco install --yes --no-progress --limitoutput git github-desktop vscode
 
 # Google chrome
-Write-Host '- Installing Google Chrome ----------------------------------'
+Write-Host '- Installing Google Chrome -----------------------------------------'
 choco install --yes --no-progress --limitoutput googlechrome
 
 # LDAP Utilities
-Write-Host '- Installing LDAP utilities --------------------------------'
+Write-Host '- Installing LDAP utilities ----------------------------------------'
 choco install --yes --no-progress --limitoutput softerraldapbrowser ldapadmin ldapexplorer
 
 # Oracle stuff
 #choco install -y oracle-sql-developer
-Write-Host '= Finish part 6 ============================================'
-# --- EOF --------------------------------------------------------------------
+
+Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: ==============================================================" 
+# --- EOF ----------------------------------------------------------------------

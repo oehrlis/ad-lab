@@ -17,14 +17,17 @@
 # see git revision history for more information on changes/updates
 # ------------------------------------------------------------------------------
 
-# - Customization --------------------------------------------------------------
-# - End of Customization -------------------------------------------------------
-
 # - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
 $ScriptNameFull = $MyInvocation.MyCommand.Path
-$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
 $Hostname       = (Hostname)
+$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
+# - EOF Default Values ---------------------------------------------------------
+
+# - Initialisation -------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
+
 # call Config Script
 if ((Test-Path $ConfigScript)) {
     Write-Host "INFO : load default values from $DefaultPWDFile"
@@ -33,12 +36,10 @@ if ((Test-Path $ConfigScript)) {
     Write-Error "ERROR: could not load default values"
     exit 1
 }
-# - EOF Variables --------------------------------------------------------------
+# - EOF Initialisation ---------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
-Write-Host "INFO: -------------------------------------------------------------" 
-Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: Default Values ----------------------------------------------" 
+Write-Host "INFO: Default Values -----------------------------------------------" 
 Write-Host "      Script Name           : $ScriptName"
 Write-Host "      Script full qualified : $ScriptNameFull"
 Write-Host "      Script Path           : $ScriptPath"
@@ -53,7 +54,7 @@ Write-Host "      Subnet                : $Subnet"
 Write-Host "      DNS Server 1          : $DNS1ClientServerAddress"
 Write-Host "      DNS Server 2          : $DNS2ClientServerAddress"
 Write-Host "      Default Password      : $PlainPassword"
-Write-Host "INFO: -------------------------------------------------------------" 
+Write-Host "INFO: --------------------------------------------------------------" 
 
 Write-Host "INFO: Install AD Role" 
 # initiate AD setup if system is not yet part of a domain
@@ -107,5 +108,5 @@ if ((gwmi win32_computersystem).partofdomain -eq $false) {
     }
 }
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: -------------------------------------------------------------" 
-# --- EOF --------------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+# --- EOF ----------------------------------------------------------------------

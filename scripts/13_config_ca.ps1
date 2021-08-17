@@ -1,44 +1,32 @@
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Trivadis AG, Infrastructure Managed Services
 # Saegereistrasse 29, 8152 Glattbrugg, Switzerland
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Name.......: 25_config_ca.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2021.06.23
+# Date.......: 2021.08.17
 # Revision...: 
 # Purpose....: Script to configure Certification Autority
 # Notes......: ...
 # Reference..: 
 # License....: Apache License Version 2.0, January 2004 as shown
 #              at http://www.apache.org/licenses/
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Modified...:
 # see git revision history for more information on changes/updates
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
-# wait until we can access the AD. this is needed to prevent errors like:
-#   Unable to find a default server with Active Directory Web Services running.
-while ($true) {
-    try {
-        Get-ADDomain | Out-Null
-        break
-    } catch {
-        Write-Host 'Wait 15 seconds to get DNS ready...'
-        Start-Sleep -Seconds 15
-    }
-}
-
-# - Variables ---------------------------------------------------------------
-$ScriptNameFull = $MyInvocation.MyCommand.Path
+# - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
-$ScriptPath     = (Split-Path $ScriptNameFull -Parent)
+$ScriptNameFull = $MyInvocation.MyCommand.Path
+$Hostname       = (Hostname)
 $ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
-$adDomain       = Get-ADDomain
-$domain         = $adDomain.DNSRoot
-$domainDn       = $adDomain.DistinguishedName
-$company        = (Get-Culture).textinfo.totitlecase($adDomain.Name)
-$RootCAFile     = $ConfigPath + $domain + ".cer"
+# - EOF Default Values ---------------------------------------------------------
+
+# - Initialisation -------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 
 # call Config Script
 if ((Test-Path $ConfigScript)) {
@@ -48,15 +36,24 @@ if ((Test-Path $ConfigScript)) {
     Write-Error "ERROR: cloud not load default values"
     exit 1
 }
-# - EOF Variables -----------------------------------------------------------
 
-# - Configure Domain --------------------------------------------------------
-# - Main --------------------------------------------------------------------
-Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: Default Values ----------------------------------------------" 
+# wait until we can access the AD. this is needed to prevent errors like:
+#   Unable to find a default server with Active Directory Web Services running.
+while ($true) {
+    try {
+        Get-ADDomain | Out-Null
+        break
+    } catch {
+        Write-Host 'Wait 15 seconds to get AD Domain ready...'
+        Start-Sleep -Seconds 15
+    }
+}
+# - EOF Initialisation ---------------------------------------------------------
+
+# - Main -----------------------------------------------------------------------
+Write-Host "INFO: Default Values -----------------------------------------------" 
 Write-Host "      Script Name       : $ScriptName"
 Write-Host "      Script fq         : $ScriptNameFull"
-Write-Host "      Script Path       : $ScriptPath"
 Write-Host "      Config Path       : $ConfigPath"
 Write-Host "      Config Script     : $ConfigScript"
 Write-Host "      Password File     : $DefaultPWDFile"
@@ -114,7 +111,7 @@ Write-Host $cmd
 # print output off command
 Write-Host $output
 
-Write-Host "INFO: Done configuring CA -----------------------------------------" 
+Write-Host "INFO: Done configuring CA ------------------------------------------" 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: -------------------------------------------------------------" 
-# --- EOF --------------------------------------------------------------------
+Write-Host "INFO: ==============================================================" 
+# --- EOF ----------------------------------------------------------------------
