@@ -74,7 +74,7 @@ Write-Host "      Base DN           : $domainDn"
 
 Write-Host "INFO : Create reverse lookup zone for network $Subnet.0/24..."
 try {
-    I# create reverse lookup zone
+    # create reverse lookup zone
     Add-DnsServerPrimaryZone -NetworkID "$Subnet.0/24" -ReplicationScope "Forest"
 } catch {
     Write-Host 'ERR : reate reverse lookup zone...'

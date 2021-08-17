@@ -74,9 +74,9 @@ Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
 
 # Windows Update
 Write-Host '- Installing Windows Update ----------------------------------------'
-Install-PackageProvider -Name NuGet  -force
-Install-Module PSWindowsUpdate -force
-Install-WindowsUpdate -MicrosoftUpdate -AcceptAll -AutoReboot
+Install-Module -Name PSWindowsUpdate -Force
+Import-Module -Name PSWindowsUpdate -Force
+Get-WindowsUpdate -AcceptAll -AutoReboo
 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
 Write-Host "INFO: ==============================================================" 
