@@ -28,6 +28,7 @@ $ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_
 # - EOF Default Values ---------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
+Write-Host
 Write-Host "INFO: ==============================================================" 
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 
@@ -60,7 +61,6 @@ $domainDn       = $adDomain.DistinguishedName
 $PeopleDN       = "ou=$People,$domainDn"
 $UsersDN        = "cn=Users,$domainDn"
 $GroupDN        = "ou=$Groups,$domainDn"
-$SecurePassword = ConvertTo-SecureString -AsPlainText $PlainPassword -Force
 # - EOF Variables --------------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
@@ -71,7 +71,6 @@ Write-Host "      Script Path           : $ScriptPath"
 Write-Host "      Config Path           : $ConfigPath"
 Write-Host "      Config Script         : $ConfigScript"
 Write-Host "      Password File         : $DefaultPWDFile"
-Write-Host "      Password              : $PlainPassword"
 Write-Host "      User Config CSV File  : $UserCSVFile"
 Write-Host "      Network Domain Name   : $domain"
 Write-Host "      BaseDN                : $domainDn"

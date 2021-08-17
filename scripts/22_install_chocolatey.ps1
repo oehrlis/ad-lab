@@ -23,6 +23,7 @@ $Hostname       = (Hostname)
 # - EOF Variables --------------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
+Write-Host
 Write-Host "INFO: ==============================================================" 
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 # - EOF Initialisation ---------------------------------------------------------

@@ -19,12 +19,12 @@
 
 # - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
-$ScriptNameFull = $MyInvocation.MyCommand.Path
 $Hostname       = (Hostname)
 $ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
 # - EOF Default Values ---------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
+Write-Host
 Write-Host "INFO: ==============================================================" 
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 

@@ -19,12 +19,12 @@
 
 # - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
-$ScriptNameFull = $MyInvocation.MyCommand.Path
 $Hostname       = (Hostname)
 $ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
 # - EOF Default Values ---------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
+Write-Host
 Write-Host "INFO: ==============================================================" 
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 
@@ -42,6 +42,8 @@ if ((Test-Path $ConfigScript)) {
 # get the IP Address of the NAT Network
 $NAT_IP=(Get-WmiObject -Class Win32_NetworkAdapterConfiguration | where {$_.DefaultIPGateway -ne $null}).IPAddress | select-object -first 1
 $NAT_HOSTNAME=hostname
+$adDomain       = Get-ADDomain
+$domain         = $adDomain.DNSRoot
 # - EOF Variables --------------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
@@ -70,13 +72,11 @@ if($NAT_RECORD -eq $null){
 
 Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
 
-# Write-Host '- Configure Windows Update ---------------------------------------'
-# Install-PackageProvider -Name NuGet -Force
-# Install-Module -Name PSWindowsUpdate -Force
-# Get-Package -Name PSWindowsUpdate
-# Install windows updates currently does not work
-# Install-WindowsUpdate -MicrosoftUpdate -AcceptAll -AutoReboot
-
+# Windows Update
+Write-Host '- Installing Windows Update ----------------------------------------'
+Install-PackageProvider -Name NuGet  -force
+Install-Module PSWindowsUpdate -force
+Install-WindowsUpdate -MicrosoftUpdate -AcceptAll -AutoReboot
 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
 Write-Host "INFO: ==============================================================" 

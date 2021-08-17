@@ -31,7 +31,7 @@ $ScriptDebug                = ""                    # set to any value to enable
 $People                     = "People"              # OU Name used for user entries
 $Groups                     = "Groups"              # OU Name used for group entries
 $Company                    = "Trivadis LAB"        # Company name
-$OracleBase                 = "C:\u00\app\oracle"   # Oracle Base Folder
+$OracleBase                 = "C:\u00\app\oracle"   # Oracle Base Folder              
 # - End of Customization -------------------------------------------------------
 
 # - Functions ------------------------------------------------------------------
@@ -57,6 +57,7 @@ $DefaultPWDFile         = $ConfigPath + "\default_pwd_windows.txt"
 $DefaultConfigFile      = $ConfigPath + "\default_configuration.txt"
 $UserCSVFile            = $ConfigPath + "\users_ad.csv"
 $HostCSVFile            = $ConfigPath + "\hosts.csv"
+$RootCAFile             = $ConfigPath + "\rootCA.cer"
 
 # call Config Script
 if ((Test-Path $DefaultConfigFile)) {
@@ -175,6 +176,8 @@ if (!$PlainPassword) {
 } else {
     Write-Host "INFO: Using password provided via config file"
 }
+# Create secure Password string
+$SecurePassword = ConvertTo-SecureString -AsPlainText $PlainPassword -Force
 
 # update password file
 Write-Host "INFO : Write default password to $DefaultPWDFile"

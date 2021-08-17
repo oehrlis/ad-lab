@@ -25,6 +25,7 @@ $ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_
 # - EOF Default Values ---------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
+Write-Host
 Write-Host "INFO: ==============================================================" 
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 

@@ -25,6 +25,7 @@ $ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_
 # - EOF Default Values ---------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
+Write-Host
 Write-Host "INFO: ==============================================================" 
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 
@@ -54,10 +55,7 @@ while ($true) {
 $adDomain       = Get-ADDomain
 $domain         = $adDomain.DNSRoot
 $domainDn       = $adDomain.DistinguishedName
-$PeopleDN       = "ou=$People,$domainDn"
-$UsersDN        = "cn=Users,$domainDn"
-$GroupDN        = "ou=$Groups,$domainDn"
-$SecurePassword = ConvertTo-SecureString -AsPlainText $PlainPassword -Force
+$REALM          = $adDomain.DNSRoot.ToUpper()
 # - EOF Variables --------------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
@@ -75,15 +73,6 @@ Write-Host "      AD Domain         : $adDomain"
 Write-Host "      Domain Base DN    : $domainDn"
 Write-Host "      Company Name      : $company"
 Write-Host "      Root CA           : $RootCAFile"
-
-if ((Test-Path $DefaultPWDFile)) {
-    Write-Host "INFO : Get default password from $DefaultPWDFile"
-    $PlainPassword=Get-Content -Path  $DefaultPWDFile -TotalCount 1
-    $PlainPassword=$PlainPassword.trim()
-} else {
-    Write-Error "ERR  : Can not access $DefaultPWDFile"
-    $PlainPassword=""
-}
 
 Write-Host 'INFO : Install Role ADCS-Cert-Authority...'
 Install-WindowsFeature ADCS-Cert-Authority -IncludeManagementTools

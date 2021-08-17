@@ -23,13 +23,19 @@ $Hostname       = (Hostname)
 # - EOF Variables --------------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
+Write-Host
 Write-Host "INFO: ==============================================================" 
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
-# - EOF Initialisation ---------------------------------------------------------
 
-# - Variables ------------------------------------------------------------------
-$SecurePassword = $PlainPassword | ConvertTo-SecureString -AsPlainText -Force
-# - EOF Variables --------------------------------------------------------------
+# call Config Script
+if ((Test-Path $ConfigScript)) {
+    Write-Host "INFO : load default values from $DefaultPWDFile"
+    . $ConfigScript
+} else {
+    Write-Error "ERROR: could not load default values"
+    exit 1
+}
+# - EOF Initialisation ---------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
 Import-Module ActiveDirectory

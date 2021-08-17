@@ -23,6 +23,7 @@ $Hostname       = (Hostname)
 # - EOF Variables --------------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
+Write-Host
 Write-Host "INFO: ==============================================================" 
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 # - EOF Initialisation ---------------------------------------------------------
@@ -30,17 +31,32 @@ Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d
 # - Main -----------------------------------------------------------------------
 # - Install tools --------------------------------------------------------------
 Write-Host '- Installing putty, winscp and other tools -------------------------'
-choco install --yes --no-progress --limitoutput winscp putty putty.install
+choco install --yes --no-progress --limitoutput winscp putty putty.install mobaxterm
+# Config Desktop shortcut
+$TargetFile     = "$env:Programfiles\PuTTY\putty.exe"
+$ShortcutFile   = "$env:Public\Desktop\putty.lnk"
+$WScriptShell   = New-Object -ComObject WScript.Shell
+$Shortcut       = $WScriptShell.CreateShortcut($ShortcutFile)
+$Shortcut.TargetPath = $TargetFile
+$Shortcut.Save()
+
 choco install --yes --no-progress --limitoutput totalcommander
-#choco install -y wsl
+# Config Desktop shortcut
+$TargetFile     = "$env:Programfiles\totalcmd\totalcmd.exe"
+$ShortcutFile   = "$env:Public\Desktop\Total Commander.lnk"
+$WScriptShell   = New-Object -ComObject WScript.Shell
+$Shortcut       = $WScriptShell.CreateShortcut($ShortcutFile)
+$Shortcut.TargetPath = $TargetFile
+$Shortcut.Save()
 
 # development
-Write-Host '- Installing DEV tools ---------------------------------------------'
+Write-Host '- Installing DEV tools -------------------------------------'
 choco install --yes --no-progress --limitoutput git github-desktop vscode
 
-# Google chrome
-Write-Host '- Installing Google Chrome -----------------------------------------'
-choco install --yes --no-progress --limitoutput googlechrome
+# Browsers
+Write-Host '- Installing Browsers --------------------------------------'
+choco install --yes --no-progress --limitoutput googlechrome --ignore-checksums
+choco install --yes --no-progress --limitoutput Firefox
 
 # LDAP Utilities
 Write-Host '- Installing LDAP utilities ----------------------------------------'

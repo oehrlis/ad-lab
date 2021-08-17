@@ -25,6 +25,7 @@ $ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_
 # - EOF Default Values ---------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
+Write-Host
 Write-Host "INFO: ==============================================================" 
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 
@@ -52,7 +53,6 @@ Write-Host "      Host IP Address       : $ServerAddress"
 Write-Host "      Subnet                : $Subnet"
 Write-Host "      DNS Server 1          : $DNS1Address"
 Write-Host "      DNS Server 2          : $DNS2Address"
-Write-Host "      Default Password      : $PlainPassword"
 Write-Host "INFO: -------------------------------------------------------------" 
 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")

@@ -19,18 +19,29 @@
 
 # - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
+$ScriptNameFull = $MyInvocation.MyCommand.Path
 $Hostname       = (Hostname)
-$adDomain       = Get-ADDomain
-# - EOF Variables --------------------------------------------------------------
+$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
+# - EOF Default Values ---------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
+Write-Host
 Write-Host "INFO: ==============================================================" 
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
+
+# call Config Script
+if ((Test-Path $ConfigScript)) {
+    Write-Host "INFO : load default values from $DefaultPWDFile"
+    . $ConfigScript
+} else {
+    Write-Error "ERROR: could not load default values"
+    exit 1
+}
 # - EOF Initialisation ---------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
 Write-Host '- Configure AD password filter -------------------------------------'
-Write-Host " not yet implemented"
+Write-Host "INFO: not yet implemented"
 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
 Write-Host "INFO: ==============================================================" 
