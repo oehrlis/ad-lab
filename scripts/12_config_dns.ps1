@@ -50,6 +50,16 @@ while ($true) {
 }
 # - EOF Initialisation ---------------------------------------------------------
 
+# - Variables ------------------------------------------------------------------
+$adDomain       = Get-ADDomain
+$domain         = $adDomain.DNSRoot
+$domainDn       = $adDomain.DistinguishedName
+$PeopleDN       = "ou=$People,$domainDn"
+$UsersDN        = "cn=Users,$domainDn"
+$GroupDN        = "ou=$Groups,$domainDn"
+$SecurePassword = ConvertTo-SecureString -AsPlainText $PlainPassword -Force
+# - EOF Variables --------------------------------------------------------------
+
 # - Main -----------------------------------------------------------------------
 Write-Host "INFO: Default Values -----------------------------------------------" 
 Write-Host "      Script Name       : $ScriptName"
