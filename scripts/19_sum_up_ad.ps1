@@ -31,7 +31,7 @@ Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d
 
 # call Config Script
 if ((Test-Path $ConfigScript)) {
-    Write-Host "INFO : load default values from $DefaultPWDFile"
+    Write-Host "INFO: load default values from $DefaultPWDFile"
     . $ConfigScript
 } else {
     Write-Error "ERROR: cloud not load default values"

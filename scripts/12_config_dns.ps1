@@ -31,7 +31,7 @@ Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d
 
 # call Config Script
 if ((Test-Path $ConfigScript)) {
-    Write-Host "INFO : load default values from $DefaultPWDFile"
+    Write-Host "INFO: load default values from $DefaultPWDFile"
     . $ConfigScript
 } else {
     Write-Error "ERROR: cloud not load default values"
@@ -72,7 +72,7 @@ Write-Host "      Domain            : $domain"
 Write-Host "      REALM             : $REALM"
 Write-Host "      Base DN           : $domainDn"
 
-Write-Host "INFO : Create reverse lookup zone for network $Subnet.0/24..."
+Write-Host "INFO: Create reverse lookup zone for network $Subnet.0/24..."
 try {
     # create reverse lookup zone
     Add-DnsServerPrimaryZone -NetworkID "$Subnet.0/24" -ReplicationScope "Forest"
@@ -84,7 +84,7 @@ try {
 #Remove-DnsServerResourceRecord -ZoneName $domain -RRType "A" -Name $NAT_HOSTNAME -Force
 
 #...and import hosts
-# Write-Host 'INFO : Process hosts from CSV ...'
+# Write-Host 'INFO: Process hosts from CSV ...'
 # $HostList = Import-Csv -Path $HostCSVFile   
 # foreach ($HostRecord in $HostList)
 # {

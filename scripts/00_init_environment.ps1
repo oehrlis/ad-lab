@@ -61,14 +61,14 @@ $RootCAFile             = $ConfigPath + "\rootCA.cer"
 
 # call Config Script
 if ((Test-Path $DefaultConfigFile)) {
-    Write-Host "INFO : load default config values from $DefaultConfigFile"
+    Write-Host "INFO: load default config values from $DefaultConfigFile"
     $DefaultConfigHash = Get-Content -raw -Path $DefaultConfigFile | ConvertFrom-StringData
 } else {
     Write-Error "WARN : could not load default values"
 }
 
 # set default values from Config Hash
-Write-Host "INFO : set default config values from config hash"
+Write-Host "INFO: set default config values from config hash"
 if ($DefaultConfigHash.NetworkDomainName) {
     $NetworkDomainName = $DefaultConfigHash.NetworkDomainName
 }
@@ -180,7 +180,7 @@ if (!$PlainPassword) {
 $SecurePassword = ConvertTo-SecureString -AsPlainText $PlainPassword -Force
 
 # update password file
-Write-Host "INFO : Write default password to $DefaultPWDFile"
+Write-Host "INFO: Write default password to $DefaultPWDFile"
 Set-Content $DefaultPWDFile $PlainPassword
 # - EOF Default Values ---------------------------------------------------------
 

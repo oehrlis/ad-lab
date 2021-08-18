@@ -31,7 +31,7 @@ Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d
 
 # call Config Script
 if ((Test-Path $ConfigScript)) {
-    Write-Host "INFO : load default values from $DefaultPWDFile"
+    Write-Host "INFO: load default values from $DefaultPWDFile"
     . $ConfigScript
 } else {
     Write-Error "ERROR: cloud not load default values"
@@ -74,7 +74,7 @@ Write-Host "      Domain Base DN    : $domainDn"
 Write-Host "      Company Name      : $company"
 Write-Host "      Root CA           : $RootCAFile"
 
-Write-Host 'INFO : Install Role ADCS-Cert-Authority...'
+Write-Host 'INFO: Install Role ADCS-Cert-Authority...'
 Install-WindowsFeature ADCS-Cert-Authority -IncludeManagementTools
 
 $caCommonName = "$company Enterprise Root CA"
@@ -86,9 +86,8 @@ $caCommonName = "$company Enterprise Root CA"
 #
 # NB to install a EnterpriseRootCa the current user must be on the
 #    Enterprise Admins group. 
-Write-Host 'INFO : Configure ADCS-Cert-Authority...'
+Write-Host 'INFO: Configure ADCS-Cert-Authority...'
 try {
-    Start-Sleep 300
     Install-AdcsCertificationAuthority `
         -CAType EnterpriseRootCa  `
         -CACommonName $caCommonName `
@@ -102,7 +101,7 @@ try {
     Write-Host 'ERR : Configure ADCS-Cert-Authority...'
     Write-Host $_.Exception.Message
 
-    Write-Host "INFO : Add shortcut for $ScriptName"
+    Write-Host "INFO: Add shortcut for $ScriptName"
     $WScriptShell           = New-Object -ComObject WScript.Shell
     $Shortcut               = $WScriptShell.CreateShortcut("$env:Public\Desktop\$ScriptName.lnk")
     $Shortcut.TargetPath    = "powershell.exe"
@@ -110,7 +109,7 @@ try {
     $Shortcut.Save()
 }
 
-Write-Host 'INFO : Export root CA to $RootCAFile ...'
+Write-Host 'INFO: Export root CA to $RootCAFile ...'
 $cmd = 'certutil -ca.cert ' + $RootCAFile
 $output = cmd /c $cmd 2>&1
 # print command
