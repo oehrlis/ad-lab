@@ -20,6 +20,7 @@
 # - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
 $Hostname       = (Hostname)
+$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
 # - EOF Variables --------------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
@@ -48,25 +49,25 @@ Add-ADPrincipalGroupMembership -Identity "Trivadis LAB Users" -MemberOf ORA_VFR_
 
 # reset passwords
 Write-Host "INFO: Reset all User Passwords..."
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity lynd
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity rider
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity tanner
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity gartner
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity fleming
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity bond
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity walters
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity renton
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity leitner
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity blake
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity ward
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity moneypenny
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity scott
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity smith
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity adams
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity blofeld
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity miller
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity clark
-Set-ADAccountPassword -Reset -NewPassword $PlainPassword -Identity king
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity lynd
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity rider
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity tanner
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity gartner
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity fleming
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity bond
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity walters
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity renton
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity leitner
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity blake
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity ward
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity moneypenny
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity scott
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity smith
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity adams
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity blofeld
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity miller
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity clark
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity king
 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
 Write-Host "INFO: ==============================================================" 
