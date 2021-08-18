@@ -88,6 +88,7 @@ $caCommonName = "$company Enterprise Root CA"
 #    Enterprise Admins group. 
 Write-Host 'INFO : Configure ADCS-Cert-Authority...'
 try {
+    Start-Sleep 300
     Install-AdcsCertificationAuthority `
         -CAType EnterpriseRootCa  `
         -CACommonName $caCommonName `
