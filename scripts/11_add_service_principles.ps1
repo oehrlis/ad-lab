@@ -109,12 +109,14 @@ if (!(Get-ADUser -Filter "sAMAccountName -eq 'oracle'")) {
 Write-Host "INFO: Change privileges for user oracle"
 Add-ADGroupMember -Identity "Domain Admins"     -Members oracle
 Add-ADGroupMember -Identity "Enterprise Admins" -Members oracle
+Add-ADGroupMember -Identity "Schema Admins" -Members oracle
 
 # change vagrant privileges
 if (Get-ADUser -Filter "sAMAccountName -eq 'vagrant'") {
     Write-Host "INFO: User vagrant does exist. Change privileges."
     Add-ADGroupMember -Identity "Domain Admins"     -Members vagrant
     Add-ADGroupMember -Identity "Enterprise Admins" -Members vagrant    
+    Add-ADGroupMember -Identity "Schema Admins" -Members vagrant
 }
 
 Write-Host "INFO: Finished configuring the service principles ------------------" 
