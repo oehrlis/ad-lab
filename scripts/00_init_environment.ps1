@@ -143,7 +143,7 @@ if ($DefaultConfigHash.Groups) {
 }
 
 if ($DefaultConfigHash.Company) {
-    $Groups = $DefaultConfigHash.Company
+    $Company = $DefaultConfigHash.Company
 }
 
 if ($DefaultConfigHash.PlainPassword) {
