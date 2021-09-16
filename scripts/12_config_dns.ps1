@@ -37,6 +37,8 @@ if ((Test-Path $ConfigScript)) {
     Write-Error "ERROR: cloud not load default values"
     exit 1
 }
+Write-Host "INFO: Sleep for 60 secs"
+Start-Sleep -Seconds 60
 
 # wait until we can access the AD. this is needed to prevent errors like:
 #   Unable to find a default server with Active Directory Web Services running.
@@ -68,14 +70,16 @@ Write-Host "      Config Script     : $ConfigScript"
 Write-Host "      Password File     : $DefaultPWDFile"
 Write-Host "      Host File         : $HostCSVFile"
 Write-Host "      Host              : $NAT_HOSTNAME"
+Write-Host "      Subnet            : $Subnet"
 Write-Host "      Domain            : $domain"
 Write-Host "      REALM             : $REALM"
 Write-Host "      Base DN           : $domainDn"
 
+Import-Module DnsServer 
 Write-Host "INFO: Create reverse lookup zone for network $Subnet.0/24..."
 try {
     # create reverse lookup zone
-    Add-DnsServerPrimaryZone -NetworkID "$Subnet.0/24" -ReplicationScope "Forest"
+    Add-DnsServerPrimaryZone -NetworkID "$Subnet.0/24" -ReplicationScope "Domain"
 } catch {
     Write-Host 'ERR : reate reverse lookup zone...'
     Write-Host $_.Exception.Message
