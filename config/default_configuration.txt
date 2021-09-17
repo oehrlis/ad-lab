@@ -8,4 +8,4 @@ PlainPassword           =
 PasswordLength          = 15
 People                  = People
 Groups                  = Groups
-Company                 = Trivadis LAB
+Company                 =

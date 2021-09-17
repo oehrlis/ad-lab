@@ -146,6 +146,16 @@ if ($DefaultConfigHash.Company) {
     $Company = $DefaultConfigHash.Company
 }
 
+if ($DefaultConfigHash.Company) {
+    $Company = $DefaultConfigHash.Company
+} else {
+    # Get the default NetBios Name from the domain name
+    if (!$Company) { 
+        $CompanyName    = $NetworkDomainName.ToTitleCase() -replace "\.\w*$",""
+        $Company        = "$CompanyName LAB"
+    }
+}
+
 if ($DefaultConfigHash.PlainPassword) {
     $PlainPassword = $DefaultConfigHash.PlainPassword
 }

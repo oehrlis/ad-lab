@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove dependency on local templates in *Doc Build* workflow.
 - Remove dependency on local templates [AUTHOR_GUIDE](AUTHOR_GUIDE.md).
 - reorganize doc build pipeline to one file [doc-pipeline.yml](.github/workflows/doc-pipeline.yml).
+- set company name based on domain name
 
 ### Fixed
 
