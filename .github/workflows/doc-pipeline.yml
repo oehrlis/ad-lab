@@ -83,45 +83,4 @@ jobs:
           name: Generated Documents
           path: tvd-${{ env.REPOSITORY_NAME }}*
 
-  # - Build DE docs ------------------------------------------------------------
-  # Job to build the german documentation
-  build_de_docs:
-    needs: check_docs
-    name: Build german documents
-    runs-on: ubuntu-latest
-    env:
-      LANGUAGE: de
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Populate env variables
-        run: |
-          echo "MD_FILES=$(printf '%s ' ${{ env.LANGUAGE }}/?x??-*.md)" >> $GITHUB_ENV
-          echo "REPOSITORY_NAME=$(echo '${{ github.repository }}' | awk -F '/' '{print $2}')" >> $GITHUB_ENV
-      # Build PDF using docker images oehrlis/pandoc
-      - name: Build pdf document
-        uses: docker://oehrlis/pandoc
-        with:
-          args: >-
-            --pdf-engine=xelatex
-            --listings
-            --metadata-file=${{ env.LANGUAGE }}/metadata.yml
-            --resource-path=images
-            --filter pandoc-latex-environment
-            --output=tvd-${{ env.REPOSITORY_NAME }}_${{ env.LANGUAGE }}.pdf ${{ env.MD_FILES }}
-      # Build DOCX using docker images oehrlis/pandoc
-      - name: Build docx document
-        uses: docker://oehrlis/pandoc
-        with:
-          args: >-
-            --metadata-file=${{ env.LANGUAGE }}/metadata.yml
-            --listings
-            --resource-path=images
-            --output=tvd-${{ env.REPOSITORY_NAME }}_${{ env.LANGUAGE }}.docx ${{ env.MD_FILES }}
-    
-      - uses: actions/upload-artifact@master
-        with:
-          name: Generated Documents
-          job_alias: latest
-          path: tvd-${{ env.REPOSITORY_NAME }}*
 # --- EOF -------------------------------------------------------------------
