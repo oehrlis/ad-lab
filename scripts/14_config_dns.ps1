@@ -6,10 +6,10 @@
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
 # Date.......: 2021.08.17
-# Revision...: 
+# Revision...:
 # Purpose....: Script to configure DNS server
 # Notes......: ...
-# Reference..: 
+# Reference..:
 # License....: Apache License Version 2.0, January 2004 as shown
 #              at http://www.apache.org/licenses/
 # ------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ $ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_
 
 # - Initialisation -------------------------------------------------------------
 Write-Host
-Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: =============================================================="
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 
 # call Config Script
@@ -59,7 +59,7 @@ $REALM          = $adDomain.DNSRoot.ToUpper()
 # - EOF Variables --------------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
-Write-Host "INFO: Default Values -----------------------------------------------" 
+Write-Host "INFO: Default Values -----------------------------------------------"
 Write-Host "      Script Name       : $ScriptName"
 Write-Host "      Script fq         : $ScriptNameFull"
 Write-Host "      Script Path       : $ScriptPath"
@@ -73,7 +73,7 @@ Write-Host "      Domain            : $domain"
 Write-Host "      REALM             : $REALM"
 Write-Host "      Base DN           : $domainDn"
 
-Import-Module DnsServer 
+Import-Module DnsServer
 
 $CharArray =$Subnet.Split(".")
 [array]::Reverse($CharArray)
@@ -93,7 +93,7 @@ try {
 
 #...and import hosts
 # Write-Host 'INFO: Process hosts from CSV ...'
-# $HostList = Import-Csv -Path $HostCSVFile   
+# $HostList = Import-Csv -Path $HostCSVFile
 # foreach ($HostRecord in $HostList)
 # {
 #     $IP         = $HostRecord.IP
@@ -115,17 +115,6 @@ try {
 #     } Catch {
 #         Write-Host "Error while adding Resource Record A for Host:`n$($Error[0].Exception.Message)"
 #     }
-    # if ( $Hostname -Match "db") {
-    #     Write-Host "Generate keytab file for host $Hostname ..."
-    #     $cmd = 'ktpass -princ oracle/' + $FQDN + '@' + $REALM + ' -mapuser ' + $FQDN + ' -pass ' + $PlainPassword + ' -crypto ALL -ptype KRB5_NT_PRINCIPAL -out ' + $Keytabfile
-    #     $output = cmd /c $cmd 2>&1
-    #     # print command
-    #     Write-Host $cmd
-    #     # print output off command
-    #     Write-Host $output
-    # } else {
-    #     Write-Host "Skip keytab file generation for host $Hostname ..."
-    # }
 # }
 
 # add CNAME records for ad, db and oud
@@ -140,7 +129,7 @@ $NAT_HOSTNAME=hostname
 # get DNS Server Records
 Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
 
-Write-Host "INFO: Done configuring DNS -----------------------------------------" 
+Write-Host "INFO: Done configuring DNS -----------------------------------------"
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: =============================================================="
 # --- EOF ----------------------------------------------------------------------

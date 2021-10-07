@@ -6,10 +6,10 @@
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
 # Date.......: 2021.06.23
-# Revision...: 
+# Revision...:
 # Purpose....: Initialize and configure the default values
 # Notes......: ...
-# Reference..: 
+# Reference..:
 # License....: Apache License Version 2.0, January 2004 as shown
 #              at http://www.apache.org/licenses/
 # ------------------------------------------------------------------------------
@@ -18,20 +18,19 @@
 # ------------------------------------------------------------------------------
 
 # - Customization --------------------------------------------------------------
-$NetworkDomainName          = "trivadislabs.com"    # Domain Name used to setup the DC and DNS
-$netbiosDomain              = ""                    # NetBios Name defaults to uppercase domain name 
+$NetworkDomainName          = "HashiDemos.io"    # Domain Name used to setup the DC and DNS
+$netbiosDomain              = ""                    # NetBios Name defaults to uppercase domain name
 $Subnet                     = ""                    # SubNet generated from IP address if omitted
 $ADDomainMode               = "Default"             # AD Domain Mode e.g Win2008, Win2008R2, Win2012, Win2012R2, WinThreshold, Default
-$ServerAddress              = ""                    # IP address of the DC if ommited 
+$ServerAddress              = ""                    # IP address of the DC if ommited
 $DNS1ClientServerAddress    = "8.8.8.8"             # IP Address of the first DNS server
 $DNS2ClientServerAddress    = "4.4.4.4"             # IP Address of the second DNS server
 $PlainPassword              = ""                    # default Password use to setup. If empty it will be taken from default_pwd_windows.txt or generated
 $PasswordLength             = 15                    # password length if password is generated
-$ScriptDebug                = ""                    # set to any value to enable debug messages 
+$ScriptDebug                = ""                    # set to any value to enable debug messages
 $People                     = "People"              # OU Name used for user entries
 $Groups                     = "Groups"              # OU Name used for group entries
-$Company                    = "Trivadis LAB"        # Company name
-$OracleBase                 = "C:\u00\app\oracle"   # Oracle Base Folder              
+$Company                    = "HashiCorp"        # Company name
 # - End of Customization -------------------------------------------------------
 
 # - Functions ------------------------------------------------------------------
@@ -49,7 +48,7 @@ Function GeneratePassword {
 # - End of Functions -----------------------------------------------------------
 
 # - Default Values -------------------------------------------------------------
-Write-Host "INFO: Set the default configuration values ------------------------" 
+Write-Host "INFO: Set the default configuration values ------------------------"
 $ConfigScriptNameFull   = $MyInvocation.MyCommand.Path
 $ScriptPath             = (Split-Path $ConfigScriptNameFull -Parent)
 $ConfigPath             = (Split-Path $ScriptPath -Parent) + "\config"
@@ -77,7 +76,7 @@ if ($DefaultConfigHash.netbiosDomain) {
     $netbiosDomain = $DefaultConfigHash.netbiosDomain
 } else {
     # Get the default NetBios Name from the domain name
-    if (!$netbiosDomain) { 
+    if (!$netbiosDomain) {
         $netbiosDomain  = $NetworkDomainName.ToUpper() -replace "\.\w*$",""
     }
 }
@@ -90,7 +89,7 @@ if ($DefaultConfigHash.ServerAddress) {
     $ServerAddress = $DefaultConfigHash.ServerAddress
 } else {
     # get the $ServerAddress if not defined
-    if (!$ServerAddress) { 
+    if (!$ServerAddress) {
         $ServerAddress = (Get-NetIPAddress `
             -AddressFamily IPv4 `
             -InterfaceAlias "Ethernet*").IPAddress | Select-Object -first 1
@@ -101,7 +100,7 @@ if ($DefaultConfigHash.ServerAddress) {
     $ServerAddress = $DefaultConfigHash.ServerAddress
 } else {
     # get the $ServerAddress if not defined
-    if (!$ServerAddress) { 
+    if (!$ServerAddress) {
         $ServerAddress = (Get-NetIPAddress `
             -AddressFamily IPv4 `
             -InterfaceAlias "Ethernet*").IPAddress | Select-Object -first 1
@@ -112,7 +111,7 @@ if ($DefaultConfigHash.DNS1ClientServerAddress) {
     $DNS1ClientServerAddress = $DefaultConfigHash.DNS1ClientServerAddress
 } else {
     # get the $DNS1ClientServerAddress if not defined
-    if (!$DNS1ClientServerAddress) { 
+    if (!$DNS1ClientServerAddress) {
         $DNS1ClientServerAddress = (Get-DnsClientServerAddress `
             -AddressFamily IPv4 `
             -InterfaceAlias "Ethernet*").ServerAddresses | Select-Object -first 1
@@ -123,7 +122,7 @@ if ($DefaultConfigHash.DNS2ClientServerAddress) {
     $DNS2ClientServerAddress = $DefaultConfigHash.DNS2ClientServerAddress
 } else {
     # get the $DNS2ClientServerAddress if not defined
-    if (!$DNS2ClientServerAddress) { 
+    if (!$DNS2ClientServerAddress) {
         $DNS2ClientServerAddress = (Get-DnsClientServerAddress `
             -AddressFamily IPv4 `
             -InterfaceAlias "Ethernet*").ServerAddresses | Select-Object -last 1
@@ -150,7 +149,7 @@ if ($DefaultConfigHash.Company) {
     $Company = $DefaultConfigHash.Company
 } else {
     # Get the default NetBios Name from the domain name
-    if (!$Company) { 
+    if (!$Company) {
         $CompanyName    = $NetworkDomainName.ToTitleCase() -replace "\.\w*$",""
         $Company        = "$CompanyName LAB"
     }
@@ -161,12 +160,12 @@ if ($DefaultConfigHash.PlainPassword) {
 }
 
 # get the default subnet from the IP Address
-if (!$Subnet) { 
+if (!$Subnet) {
     $Subnet  = $ServerAddress -replace "\.\w*$", ""
 }
 
 # generate random password if variable is empty
-if (!$PlainPassword) { 
+if (!$PlainPassword) {
     # get default password from file
     if ((Test-Path $DefaultPWDFile)) {
         Write-Host "INFO: Get default password from $DefaultPWDFile"
@@ -182,7 +181,7 @@ if (!$PlainPassword) {
         # generate a new password
         Write-Error "INFO: Generate new password"
         $PlainPassword = GeneratePassword
-    } 
+    }
 } else {
     Write-Host "INFO: Using password provided via config file"
 }
@@ -195,7 +194,7 @@ Set-Content $DefaultPWDFile $PlainPassword
 # - EOF Default Values ---------------------------------------------------------
 
 # - Main --------------------------------------------------------------------
-if ($ScriptDebug) { 
+if ($ScriptDebug) {
     Write-Host "INFO: Default Values ----------------------------------------------"
     Write-Host "    Script Name           : $ScriptName"
     Write-Host "    Script full qualified : $ScriptNameFull"
@@ -215,8 +214,7 @@ if ($ScriptDebug) {
     Write-Host "    Company Name          : $Company"
     Write-Host "    User CSV File         : $UserCSVFile"
     Write-Host "    Host CSV File         : $HostCSVFile"
-    Write-Host "    Oracle Base Folder    : $OracleBase"
-    
+
     Write-Host "INFO: -------------------------------------------------------------"
 }
 # --- EOF ----------------------------------------------------------------------

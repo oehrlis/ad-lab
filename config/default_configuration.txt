@@ -1,11 +1,11 @@
 # config file to define default values for AD-Lab
-NetworkDomainName       = trivadislabs.com
+NetworkDomainName       = hashidemos.io
 ADDomainMode            = default
-ServerAddress           = 
+ServerAddress           =
 DNS1ClientServerAddress = 8.8.8.8
 DNS2ClientServerAddress = 4.4.4.4
-PlainPassword           = 
+PlainPassword           =
 PasswordLength          = 15
 People                  = People
 Groups                  = Groups
-Company                 =
+Company                 = HashiCorp

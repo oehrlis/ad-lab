@@ -6,10 +6,10 @@
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
 # Date.......: 2021.06.23
-# Revision...: 
+# Revision...:
 # Purpose....: Script to install tools via chocolatey package
 # Notes......: ...
-# Reference..: 
+# Reference..:
 # License....: Apache License Version 2.0, January 2004 as shown
 #              at http://www.apache.org/licenses/
 # ---------------------------------------------------------------------------
@@ -24,7 +24,7 @@ $Hostname       = (Hostname)
 
 # - Initialisation -------------------------------------------------------------
 Write-Host
-Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: =============================================================="
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 # - EOF Initialisation ---------------------------------------------------------
 
@@ -62,9 +62,7 @@ choco install --yes --no-progress --limitoutput Firefox
 Write-Host '- Installing LDAP utilities ----------------------------------------'
 choco install --yes --no-progress --limitoutput softerraldapbrowser ldapadmin ldapexplorer
 
-# Oracle stuff
-#choco install -y oracle-sql-developer
 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: =============================================================="
 # --- EOF ----------------------------------------------------------------------

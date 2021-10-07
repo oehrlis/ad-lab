@@ -6,10 +6,10 @@
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
 # Date.......: 2021.08.17
-# Revision...: 
+# Revision...:
 # Purpose....: Script to configure Active Directory
 # Notes......: ...
-# Reference..: 
+# Reference..:
 # License....: Apache License Version 2.0, January 2004 as shown
 #              at http://www.apache.org/licenses/
 # ------------------------------------------------------------------------------
@@ -29,7 +29,7 @@ $ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_
 
 # - Initialisation -------------------------------------------------------------
 Write-Host
-Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: =============================================================="
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 
 # call Config Script
@@ -64,7 +64,7 @@ $GroupDN        = "ou=$Groups,$domainDn"
 # - EOF Variables --------------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
-Write-Host "INFO: Default Values -----------------------------------------------" 
+Write-Host "INFO: Default Values -----------------------------------------------"
 Write-Host "      Script Name           : $ScriptName"
 Write-Host "      Script full qualified : $ScriptNameFull"
 Write-Host "      Script Path           : $ScriptPath"
@@ -77,49 +77,35 @@ Write-Host "      BaseDN                : $domainDn"
 Write-Host "      People DN             : $PeopleDN"
 Write-Host "      User DN               : $UsersDN"
 Write-Host "      Group DN              : $GroupDN"
-Write-Host "INFO: --------------------------------------------------------------" 
+Write-Host "INFO: --------------------------------------------------------------"
 
 # - Configure Domain -----------------------------------------------------------
 Import-Module ActiveDirectory           # load AD PS module
 
 # create service principle
-Write-Host "INFO: Start configuring the service principles ---------------------" 
-Write-Host "INFO: Create service principles" 
-Write-Host "INFO: Process hosts from CSV ($HostCSVFile)" 
-$HostList = Import-Csv -Path $HostCSVFile   
+Write-Host "INFO: Start configuring the service principles ---------------------"
+Write-Host "INFO: Create service principles"
+Write-Host "INFO: Process hosts from CSV ($HostCSVFile)"
+$HostList = Import-Csv -Path $HostCSVFile
 foreach ($HostRecord in $HostList)
 {
     $Hostname   = $HostRecord.Name
-    Write-Host "INFO: Add service principle for $Hostname" 
+    Write-Host "INFO: Add service principle for $Hostname"
     New-ADUser -SamAccountName $Hostname -Name $Hostname `
         -DisplayName $Hostname -Description "Kerberos Service User for $Hostname" `
         -Path $UsersDN -AccountPassword $SecurePassword -Enabled $true `
         -KerberosEncryptionType "AES128, AES256"
 }
 
-if (!(Get-ADUser -Filter "sAMAccountName -eq 'oracle'")) {
-    Write-Host "INFO: User oracle does not exist. Add new one"
-    New-ADUser -SamAccountName "oracle" -Name "oracle" -DisplayName "oracle" `
-        -Description "Oracle Service User" -Path $UsersDN  `
-        -AccountPassword $SecurePassword -Enabled $true `
-        -PasswordNeverExpires $true
-}
-
-# change oracle privileges
-Write-Host "INFO: Change privileges for user oracle"
-Add-ADGroupMember -Identity "Domain Admins"     -Members oracle
-Add-ADGroupMember -Identity "Enterprise Admins" -Members oracle
-Add-ADGroupMember -Identity "Schema Admins" -Members oracle
-
 # change vagrant privileges
 if (Get-ADUser -Filter "sAMAccountName -eq 'vagrant'") {
     Write-Host "INFO: User vagrant does exist. Change privileges."
     Add-ADGroupMember -Identity "Domain Admins"     -Members vagrant
-    Add-ADGroupMember -Identity "Enterprise Admins" -Members vagrant    
+    Add-ADGroupMember -Identity "Enterprise Admins" -Members vagrant
     Add-ADGroupMember -Identity "Schema Admins" -Members vagrant
 }
 
-Write-Host "INFO: Finished configuring the service principles ------------------" 
+Write-Host "INFO: Finished configuring the service principles ------------------"
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
-Write-Host "INFO: ==============================================================" 
+Write-Host "INFO: =============================================================="
 # --- EOF ----------------------------------------------------------------------
