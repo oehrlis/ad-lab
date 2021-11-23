@@ -173,6 +173,7 @@ New-ADGroup -Name "$Company Management" -SamAccountName "$Company Management" `
 
 Add-ADGroupMember -Identity "$Company Management" -Members clark,blofeld,moneypenny
 Add-ADGroupMember -Identity "$Company Management" -Members king,rider,fleming,leitner
+Add-ADPrincipalGroupMembership -Identity "Trivadis LAB Users" -MemberOf "Remote Desktop Users" 
 
 Write-Host "INFO: Done adding LAB company organisation -------------------------" 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
