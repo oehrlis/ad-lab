@@ -62,6 +62,9 @@ choco install --yes --no-progress --limitoutput Firefox
 Write-Host '- Installing LDAP utilities ----------------------------------------'
 choco install --yes --no-progress --limitoutput softerraldapbrowser ldapadmin ldapexplorer
 
+Write-Host '- Installing VS Redist ------------'
+choco install --yes --no-progress --limitoutput vcredist140
+
 # Oracle stuff
 #choco install -y oracle-sql-developer
 
