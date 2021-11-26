@@ -25,7 +25,8 @@ $LogFolder              = "$StageFolder\logs"
 # - Main -----------------------------------------------------------------------
 Write-Host '= Start AD-Lab config part II ======================================'
 New-Item -ItemType Directory -Force -Path $LogFolder
-Start-Transcript -OutputDirectory $LogFolder
+$ErrorActionPreference="SilentlyContinue"
+Start-Transcript -path "$LogFolder\52_config_ad-lab_part2.log" 
 
 Write-Host "INFO: Config Values ------------------------------------------------" 
 Write-Host "Stage folder        : $StageFolder"
