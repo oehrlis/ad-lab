@@ -97,6 +97,10 @@ try {
         -ValidityPeriod Years `
         -ValidityPeriodUnits 5 `
         -Force
+
+    # Remove Desktop ShortCut
+    $FileName = "$env:Public\Desktop\$ScriptName.lnk"
+    if (Test-Path $FileName) { Remove-Item $FileName }
 } catch {
     Write-Host 'ERR : Configure ADCS-Cert-Authority...'
     Write-Host $_.Exception.Message
