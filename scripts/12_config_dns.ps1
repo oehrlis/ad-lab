@@ -101,7 +101,7 @@ foreach ($HostRecord in $HostList)
     $Hostname   = $HostRecord.Name
     $FQDN       = $Hostname + '.'+ $domain
     $Keytabfile = 'C:\vagrant_common\config\tnsadmin\' + $FQDN + '.keytab'
-    $Zone       = "0.0.10.in-addr.arpa"
+    $Zone       = (Get-DnsServerZone | Select-Object ZoneName, IsReverseLookupZone, IsAutoCreated | Where-Object{ $_.IsReverseLookupZone -eq $True -and ( $_.IsAutoCreated -eq $False ) } | Select-Object -expand ZoneName)
 
     Write-Host "Add DNS Resource Record A for Host $Hostname with IP $IP ..."
     Try {
