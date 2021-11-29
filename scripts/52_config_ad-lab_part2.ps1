@@ -50,6 +50,10 @@ Write-Host '- call 13_config_ca script -----------------------------------------
 Write-Host '- call 19_sum_up_ad script -----------------------------------------'
 & "$StageFolder\ad-lab\scripts\19_sum_up_ad.ps1"
 
+# Remove Desktop ShortCut
+$FileName = "$env:Public\Desktop\Config AD Part II.lnk"
+if (Test-Path $FileName) { Remove-Item $FileName }
+
 Stop-Transcript
 Write-Host '= Finish AD-Lab config part II ====================================='
 # --- EOF ----------------------------------------------------------------------

@@ -40,10 +40,11 @@ if ((Test-Path $ConfigScript)) {
 
 # - Variables ------------------------------------------------------------------
 # get the IP Address of the NAT Network
-$NAT_IP=(Get-WmiObject -Class Win32_NetworkAdapterConfiguration | where {$_.DefaultIPGateway -ne $null}).IPAddress | select-object -first 1
+$NAT_IP=(Get-WmiObject -Class Win32_NetworkAdapterConfiguration | Where-Object {$_.DefaultIPGateway -ne $null}).IPAddress | select-object -first 1
 $NAT_HOSTNAME=hostname
 $adDomain       = Get-ADDomain
 $domain         = $adDomain.DNSRoot
+$StageFolder    =   "C:\stage"
 # - EOF Variables --------------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
@@ -71,6 +72,13 @@ if($null -eq $NAT_RECORD){
 }
 
 Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
+
+# Download BGInfo Scripts
+New-Item -ItemType Directory -Force -Path "$StageFolder"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/wimmatthyssen/Hyper-V-VM-Template/master/Deploy-BgInfo-WS2016-WS2019-WS2022.ps1" `
+    -OutFile "$StageFolder\Deploy-BgInfo-WS2016-WS2019-WS2022.ps1"
+
+Start-Process -FilePath "powershell" -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -File $StageFolder\Deploy-BgInfo-WS2016-WS2019-WS2022.ps1"
 
 # Windows Update
 Write-Host '- Installing Windows Update ----------------------------------------'

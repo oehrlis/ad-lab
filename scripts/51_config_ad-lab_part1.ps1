@@ -38,6 +38,10 @@ Write-Host '- call 01_install_ad_role script -----------------------------------
 Write-Host '- call 22_install_chocolatey script --------------------------------'
 & "$StageFolder\ad-lab\scripts\22_install_chocolatey.ps1"
 
+# Remove Desktop ShortCut
+$FileName = "$env:Public\Desktop\Config AD Part I.lnk"
+if (Test-Path $FileName) { Remove-Item $FileName }
+
 Stop-Transcript
 Write-Host '= Finish AD-Lab config part I ======================================'
 # --- EOF ----------------------------------------------------------------------
