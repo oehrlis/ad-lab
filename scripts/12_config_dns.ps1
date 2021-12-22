@@ -109,12 +109,12 @@ foreach ($HostRecord in $HostList)
     } Catch {
         Write-Host "Error while adding Resource Record A for Host:`n$($Error[0].Exception.Message)"
     }
-    Write-Host "Add DNS PTR resource record for Host $Hostname for $FQDN"
-    Try {
-        Add-DnsServerResourceRecordPtr -Name $IPv4Name -ZoneName $Zone -AllowUpdateAny -TimeToLive 01:00:00 -AgeRecord -PtrDomainName $FQDN
-    } Catch {
-        Write-Host "Error while adding Resource Record A for Host:`n$($Error[0].Exception.Message)"
-    }
+    # Write-Host "Add DNS PTR resource record for Host $Hostname for $FQDN"
+    # Try {
+    #     Add-DnsServerResourceRecordPtr -Name $IPv4Name -ZoneName $Zone -AllowUpdateAny -TimeToLive 01:00:00 -AgeRecord -PtrDomainName $FQDN
+    # } Catch {
+    #     Write-Host "Error while adding Resource Record A for Host:`n$($Error[0].Exception.Message)"
+    # }
     # if ( $Hostname -Match "db") {
     #     Write-Host "Generate keytab file for host $Hostname ..."
     #     $cmd = 'ktpass -princ oracle/' + $FQDN + '@' + $REALM + ' -mapuser ' + $FQDN + ' -pass ' + $PlainPassword + ' -crypto ALL -ptype KRB5_NT_PRINCIPAL -out ' + $Keytabfile
