@@ -103,12 +103,12 @@ foreach ($HostRecord in $HostList)
     $Keytabfile = 'C:\vagrant_common\config\tnsadmin\' + $FQDN + '.keytab'
     $Zone       = (Get-DnsServerZone | Select-Object ZoneName, IsReverseLookupZone, IsAutoCreated | Where-Object{ $_.IsReverseLookupZone -eq $True -and ( $_.IsAutoCreated -eq $False ) } | Select-Object -expand ZoneName)
 
-    Write-Host "Add DNS Resource Record A for Host $Hostname with IP $IP ..."
-    Try {
-        Add-DnsServerResourceRecordA -Name $Hostname -ZoneName $domain -AllowUpdateAny -IPv4Address $IP -TimeToLive 01:00:00
-    } Catch {
-        Write-Host "Error while adding Resource Record A for Host:`n$($Error[0].Exception.Message)"
-    }
+    # Write-Host "Add DNS Resource Record A for Host $Hostname with IP $IP ..."
+    # Try {
+    #     Add-DnsServerResourceRecordA -Name $Hostname -ZoneName $domain -AllowUpdateAny -IPv4Address $IP -TimeToLive 01:00:00
+    # } Catch {
+    #     Write-Host "Error while adding Resource Record A for Host:`n$($Error[0].Exception.Message)"
+    # }
     # Write-Host "Add DNS PTR resource record for Host $Hostname for $FQDN"
     # Try {
     #     Add-DnsServerResourceRecordPtr -Name $IPv4Name -ZoneName $Zone -AllowUpdateAny -TimeToLive 01:00:00 -AgeRecord -PtrDomainName $FQDN
