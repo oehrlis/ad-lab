@@ -1,6 +1,5 @@
 # ------------------------------------------------------------------------------
-# Trivadis - Part of Accenture, Platform Factory - Transactional Data Platform
-# Saegereistrasse 29, 8152 Glattbrugg, Switzerland
+# OraDBA - Oracle Database Infrastructure and Security, 5630 Muri, Switzerland
 # ------------------------------------------------------------------------------
 # Name.......: 52_config_ad-lab_part2.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
@@ -12,9 +11,6 @@
 # Reference..: 
 # License....: Apache License Version 2.0, January 2004 as shown
 #              at http://www.apache.org/licenses/
-# ------------------------------------------------------------------------------
-# Modified...:
-# see git revision history for more information on changes/updates
 # ------------------------------------------------------------------------------
 
 # - Variables ------------------------------------------------------------------

@@ -1,7 +1,6 @@
-# ---------------------------------------------------------------------------
-# Trivadis AG, Infrastructure Managed Services
-# Saegereistrasse 29, 8152 Glattbrugg, Switzerland
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# OraDBA - Oracle Database Infrastructure and Security, 5630 Muri, Switzerland
+# ------------------------------------------------------------------------------
 # Name.......: 40_reset_ad_users.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
@@ -12,10 +11,7 @@
 # Reference..: 
 # License....: Apache License Version 2.0, January 2004 as shown
 #              at http://www.apache.org/licenses/
-# ---------------------------------------------------------------------------
-# Modified...:
-# see git revision history for more information on changes/updates
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name

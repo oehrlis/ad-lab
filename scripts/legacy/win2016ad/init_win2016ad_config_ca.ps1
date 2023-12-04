@@ -1,7 +1,6 @@
-# ---------------------------------------------------------------------------
-# Trivadis AG, Infrastructure Managed Services
-# Saegereistrasse 29, 8152 Glattbrugg, Switzerland
-# ---------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
+# OraDBA - Oracle Database Infrastructure and Security, 5630 Muri, Switzerland
+# ------------------------------------------------------------------------------
 # Name.......: init_win2016ad_config_ca.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
