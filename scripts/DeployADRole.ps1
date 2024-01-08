@@ -12,6 +12,10 @@
 # License....: Apache License Version 2.0, January 2004 as shown
 #              at http:\\www.apache.org\licenses\
 # ------------------------------------------------------------------------------
+# Missing stuff
+# - check if AD already deployed
+# - documentation
+# - error handling
 
 <#
 .SYNOPSIS
