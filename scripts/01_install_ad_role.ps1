@@ -95,7 +95,7 @@ if ((gwmi win32_computersystem).partofdomain -eq $false) {
         }
         # import required module to deploy the forest
         Import-Module ADDSDeployment
-        Install-ADDSForest @$ADDSForestParams
+        Install-ADDSForest @ADDSForestParams
     } catch {
         Write-HostWithTimestamp 'ERR : Creating domain controller.'
         Write-HostWithTimestamp $_.Exception.Message
