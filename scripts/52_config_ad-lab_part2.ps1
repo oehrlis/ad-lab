@@ -13,38 +13,45 @@
 #              at http://www.apache.org/licenses/
 # ------------------------------------------------------------------------------
 
-# - Variables ------------------------------------------------------------------
-$StageFolder            = "C:\stage"
-$LogFolder              = "$StageFolder\logs"
-# - EOF Variables --------------------------------------------------------------
+# - Default Values -------------------------------------------------------------
+$ScriptName     = $MyInvocation.MyCommand.Name
+$ScriptBaseName = $MyInvocation.MyCommand.Name.Split(".")[0]
+$ScriptNameFull = $MyInvocation.MyCommand.Path
+$ScriptFolder   = (Split-Path $MyInvocation.MyCommand.Path -Parent)
+$LogFolder      = (Split-Path $MyInvocation.MyCommand.Path -Parent|Split-Path -Parent) + "\logs"
+$LogFile        = $LogFolder + "\" + $ScriptBaseName + ".log"
+$StageFolder    = (Split-Path $MyInvocation.MyCommand.Path -Parent|Split-Path -Parent|Split-Path -Parent)
+# - EOF Default Values ---------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
 Write-Host '= Start AD-Lab config part II ======================================'
 New-Item -ItemType Directory -Force -Path $LogFolder
 $ErrorActionPreference="SilentlyContinue"
-Start-Transcript -path "$LogFolder\52_config_ad-lab_part2.log" 
+Start-Transcript -path "$LogFile" 
 
 Write-Host "INFO: Config Values ------------------------------------------------" 
-Write-Host "Stage folder        : $StageFolder"
-Write-Host "Log folder          : $LogFolder"
+Write-Host "Stage Folder        : $StageFolder"
+Write-Host "Script Folder       : $ScriptFolder"
+Write-Host "Log Folder          : $LogFolder"
+Write-Host "Log File            : $LogFile"
 
 # Download AD Scripts
 Write-Host '- call 11_add_lab_company script -----------------------------------'
-& "$StageFolder\ad-lab\scripts\11_add_lab_company.ps1" 
+& "$ScriptFolder\11_add_lab_company.ps1" 
 Write-Host '- call 11_add_service_principles script ----------------------------'
-& "$StageFolder\ad-lab\scripts\11_add_service_principles.ps1"  
+& "$ScriptFolder\11_add_service_principles.ps1"  
 Write-Host '- call 12_config_dns script ----------------------------------------'
-& "$StageFolder\ad-lab\scripts\12_config_dns.ps1"
+& "$ScriptFolder\12_config_dns.ps1"
 Write-Host '- call 26_install_tools script -------------------------------------'
-& "$StageFolder\ad-lab\scripts\26_install_tools.ps1" 
+& "$ScriptFolder\26_install_tools.ps1" 
 Write-Host '- call 28_config_misc script ---------------------------------------'
-& "$StageFolder\ad-lab\scripts\28_config_misc.ps1"
+& "$ScriptFolder\28_config_misc.ps1"
 Write-Host '- call 28_install_oracle_client script -----------------------------'
-& "$StageFolder\ad-lab\scripts\28_install_oracle_client.ps1"
+& "$ScriptFolder\28_install_oracle_client.ps1"
 Write-Host '- call 13_config_ca script -----------------------------------------'
-& "$StageFolder\ad-lab\scripts\13_config_ca.ps1"
+& "$ScriptFolder\13_config_ca.ps1"
 Write-Host '- call 19_sum_up_ad script -----------------------------------------'
-& "$StageFolder\ad-lab\scripts\19_sum_up_ad.ps1"
+& "$ScriptFolder\19_sum_up_ad.ps1"
 
 # Remove Desktop ShortCut
 $FileName = "$env:Public\Desktop\Config AD Part II.lnk"
