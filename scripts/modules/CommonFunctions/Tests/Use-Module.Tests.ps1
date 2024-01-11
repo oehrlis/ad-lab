@@ -1,12 +1,12 @@
 # ------------------------------------------------------------------------------
 # OraDBA - Oracle Database Infrastructure and Security, 5630 Muri, Switzerland
 # ------------------------------------------------------------------------------
-# Name.......: Ensure-Module.Tests.ps1
+# Name.......: Use-Module.Tests.ps1
 # Author.....: Stefan Oehrli (oes) scripts@oradba.ch
 # Editor.....: Stefan Oehrli
 # Date.......: 2024.01.11
 # Version....: 0.1.0
-# Purpose....: Simple Test Script for Ensure-Module from CommonFunctions.psm1
+# Purpose....: Simple Test Script for Use-Module from CommonFunctions.psm1
 # Notes......: make sure to install Pester
 # Reference..: 
 # License....: Apache License Version 2.0, January 2004 as shown
@@ -16,8 +16,8 @@
 $modulePath = Join-Path (Split-Path (Split-Path $MyInvocation.MyCommand.Path -Parent) -Parent) "CommonFunctions.psm1"
 Import-Module $modulePath -Force
 
-# Describe the behavior of the Ensure-Module function
-Describe 'Ensure-Module Tests' {
+# Describe the behavior of the Use-Module function
+Describe 'Use-Module Tests' {
 
     # Test with a well-known, commonly available module
     $testModuleName = "Pester"
@@ -29,14 +29,14 @@ Describe 'Ensure-Module Tests' {
         
         if (-not $module) {
             # The module is not installed, let's test the installation
-            Ensure-Module -ModuleName $testModuleName -ModuleVersion $testModuleVersion
+            Use-Module -ModuleName $testModuleName -ModuleVersion $testModuleVersion
 
             # Verify that the module is now installed
             $module = Get-Module -ListAvailable -Name $testModuleName | Where-Object { $_.Version -ge $testModuleVersion }
             $module | Should -Not -Be $null
         } else {
             # The module is already installed, just verify the import functionality
-            Ensure-Module -ModuleName $testModuleName -ModuleVersion $testModuleVersion
+            Use-Module -ModuleName $testModuleName -ModuleVersion $testModuleVersion
 
             # Verify that the module is imported
             $importedModule = Get-Module -Name $testModuleName

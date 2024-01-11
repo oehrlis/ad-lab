@@ -18,7 +18,7 @@ The module provides the following functions:
   (DEBUG, INFO, WARNING, ERROR) and optional timestamps.
 - **Exit-Script:** Exits the script with optional error handling, allowing you
   to specify an error message, custom exit code, and script name.
-- **Ensure-Module:** Ensures that a specified PowerShell module is installed
+- **Use-Module:** Ensures that a specified PowerShell module is installed
   and imported with a minimum version. It can automatically install the module
   if it's not available.
 
@@ -81,13 +81,13 @@ Exit-Script [-ErrorMessage <string>] [-ExitCode <int>] [-ScriptName <string>]
 - `IncludeTimestamp` (Optional): Indicates whether to include a timestamp in
   the log message. Default is true.
 
-### Ensure-Module
+### Use-Module
 
 This function ensures that a specified PowerShell module is installed and
 imported with a minimum version.
 
 ```powershell
-Ensure-Module -ModuleName <string> -ModuleVersion <string>
+Use-Module -ModuleName <string> -ModuleVersion <string>
 ```
 
 - `ModuleName` (Required): Specifies the name of the module to ensure is installed

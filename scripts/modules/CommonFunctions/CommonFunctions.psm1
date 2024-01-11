@@ -239,7 +239,7 @@ function Exit-Script {
     Ensures that a PowerShell module is installed and imported with a specified minimum version.
 
 .DESCRIPTION
-    The Ensure-Module function checks if a specified PowerShell module is available and imports it with a minimum version requirement. If the module is not available, it attempts to install it from the PowerShell Gallery.
+    The Use-Module function checks if a specified PowerShell module is available and imports it with a minimum version requirement. If the module is not available, it attempts to install it from the PowerShell Gallery.
 
 .PARAMETER ModuleName
     Specifies the name of the module to ensure is installed and imported.
@@ -248,7 +248,7 @@ function Exit-Script {
     Specifies the minimum version of the module required for installation and import.
 
 .EXAMPLE
-    Ensure-Module -ModuleName "MyModule" -ModuleVersion "1.0"
+    Use-Module -ModuleName "MyModule" -ModuleVersion "1.0"
     Ensures that the "MyModule" module with a minimum version of "1.0" is installed and imported.
 
 .INPUTS
@@ -259,7 +259,7 @@ function Exit-Script {
 
 #>
 
-function Ensure-Module {
+function Use-Module {
     param (
         [string]$ModuleName,
         [string]$ModuleVersion
@@ -321,5 +321,5 @@ function Set-LoggingLevel {
 }
 
 # Export the functions
-Export-ModuleMember -Function Write-Log, New-Password, Exit-Script, Ensure-Module, Set-LoggingLevel
+Export-ModuleMember -Function Write-Log, New-Password, Exit-Script, Use-Module, Set-LoggingLevel
 # --- EOF ----------------------------------------------------------------------

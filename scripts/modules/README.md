@@ -61,7 +61,7 @@ To use the "CommonFunctions" module in your PowerShell scripts, follow these ste
                         optional timestamp.
 - `Exit-Script`:        Exits the script with optional error message and custom
                         exit code.
-- `Ensure-Module`:      Ensures that a PowerShell module is installed and imported
+- `Use-Module`:      Ensures that a PowerShell module is installed and imported
                         with a specified minimum version.
 - `Set-LoggingLevel`:   Sets the logging level for the module.
 
