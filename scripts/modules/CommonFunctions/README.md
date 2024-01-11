@@ -138,7 +138,7 @@ This module is distributed under the [Apache License Version 2.0](http://www.apa
 ## Contact
 
 - Author: Stefan Oehrli
-- Email: scripts@oradba.ch
+- Email: <scripts@oradba.ch>
 
 For more information and updates, you can visit the [GitHub repository](https://github.com/oehrlis/ad-lab/tree/main).
 

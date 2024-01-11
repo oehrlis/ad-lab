@@ -16,7 +16,7 @@ PowerShell scripts.
 ## Module Information
 
 - **Author:** Stefan Oehrli (oes)
-- **Email:** scripts@oradba.ch
+- **Email:** <scripts@oradba.ch>
 - **Version:** 0.1.0
 - **License:** Apache License Version 2.0 (January 2004)
 
