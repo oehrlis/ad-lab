@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # OraDBA - Oracle Database Infrastructure and Security, 5630 Muri, Switzerland
 # ------------------------------------------------------------------------------
-# Name.......: TestCommonFunctions.ps1
+# Name.......: Write-Log.Tests.ps1
 # Author.....: Stefan Oehrli (oes) scripts@oradba.ch
 # Editor.....: Stefan Oehrli
 # Date.......: 2024.01.11
@@ -13,7 +13,8 @@
 #              at http://www.apache.org/licenses/
 # ------------------------------------------------------------------------------
 # Import the CommonFunctions module
-Import-Module (Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) "CommonFunctions.psm1") -Force
+$modulePath = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) "CommonFunctions.psm1"
+Import-Module $modulePath -Force
 
 # Describe the behavior of the Write-Log function
 Describe 'Write-Log Tests' {
