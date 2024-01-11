@@ -106,6 +106,14 @@ Set-LoggingLevel -NewLevel <LogLevel>
 - `NewLevel` (Required): Specifies the new logging level to be set. Valid values
   are DEBUG, INFO, WARNING, and ERROR.
 
+### Get-LoggingLevel
+
+This function gets the logging level for the module.
+
+```powershell
+Get-LoggingLevel
+```
+
 ## Examples
 
 Here are some examples of how to use the functions provided by the CommonFunctions

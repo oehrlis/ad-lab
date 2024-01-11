@@ -20,7 +20,7 @@
     Author              = 'Stefan Oehrli '
     CompanyName         = 'OraDBA'
     PowerShellVersion   = '5.1'
-    FunctionsToExport   = @('New-Password', 'Write-Log', 'Exit-Script', 'Use-Module', 'Set-LoggingLevel')
+    FunctionsToExport   = @('New-Password', 'Write-Log', 'Exit-Script', 'Use-Module', 'Set-LoggingLevel', 'Get-LoggingLevel')
     VariablesToExport   = '*'
     AliasesToExport     = @()
     CmdletsToExport     = @()

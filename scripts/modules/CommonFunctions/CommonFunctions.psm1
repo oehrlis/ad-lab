@@ -320,6 +320,39 @@ function Set-LoggingLevel {
     $script:LoggingLevel = $NewLevel
 }
 
+<#
+.SYNOPSIS
+    Retrieves the current logging level from the CommonFunctions module.
+
+.DESCRIPTION
+    The Get-LoggingLevel function is used to obtain the current logging level that is set in the CommonFunctions module. 
+    This function is useful for checking which types of log messages (e.g., DEBUG, INFO, WARNING, ERROR) are currently 
+    being recorded or displayed according to the module's settings.
+
+.SYNTAX
+    Get-LoggingLevel
+
+.PARAMETER
+    This function does not require any parameters.
+
+.EXAMPLE
+    PS C:\> Get-LoggingLevel
+    INFO
+    This example retrieves the current logging level, which in this case is 'INFO'.
+
+.NOTES
+    This function is part of the CommonFunctions PowerShell module and is intended to be used alongside other logging functions,
+    such as Write-Log and Set-LoggingLevel, to manage and inspect logging behaviors in scripts.
+
+.LINK
+    Set-LoggingLevel
+    Write-Log
+
+#>
+function Get-LoggingLevel {
+    return $script:LoggingLevel
+}
+
 # Export the functions
-Export-ModuleMember -Function Write-Log, New-Password, Exit-Script, Use-Module, Set-LoggingLevel
+Export-ModuleMember -Function Write-Log, New-Password, Exit-Script, Use-Module, Set-LoggingLevel, Get-LoggingLevel
 # --- EOF ----------------------------------------------------------------------

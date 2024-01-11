@@ -23,22 +23,22 @@ Describe 'Set-LoggingLevel Tests' {
 
     It 'Sets the logging level to DEBUG' {
         Set-LoggingLevel -NewLevel DEBUG
-        $script:LoggingLevel | Should -Be 'DEBUG'
+        (Get-LoggingLevel) | Should -Be 'DEBUG'
     }
 
     It 'Sets the logging level to INFO' {
         Set-LoggingLevel -NewLevel INFO
-        $script:LoggingLevel | Should -Be 'INFO'
+        (Get-LoggingLevel) | Should -Be 'INFO'
     }
 
     It 'Sets the logging level to WARNING' {
         Set-LoggingLevel -NewLevel WARNING
-        $script:LoggingLevel | Should -Be 'WARNING'
+        (Get-LoggingLevel) | Should -Be 'WARNING'
     }
 
     It 'Sets the logging level to ERROR' {
         Set-LoggingLevel -NewLevel ERROR
-        $script:LoggingLevel | Should -Be 'ERROR'
+        (Get-LoggingLevel) | Should -Be 'ERROR'
     }
 }
 # --- EOF ----------------------------------------------------------------------

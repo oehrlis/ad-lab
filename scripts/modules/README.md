@@ -55,15 +55,17 @@ To use the "CommonFunctions" module in your PowerShell scripts, follow these ste
 
 ## Functions Provided by the Module
 
-- `New-Password`:  Generates a random password with specified criteria.
+- `New-Password`:       Generates a random password with specified criteria.
 - `Write-Log`:          Writes log messages to the console with specified verbosity
                         and
                         optional timestamp.
 - `Exit-Script`:        Exits the script with optional error message and custom
                         exit code.
-- `Use-Module`:      Ensures that a PowerShell module is installed and imported
+- `Use-Module`:         Ensures that a PowerShell module is installed and imported
                         with a specified minimum version.
 - `Set-LoggingLevel`:   Sets the logging level for the module.
+- `Get-LoggingLevel`:   Retrieves the current logging level from the
+                        CommonFunctions module.
 
 Refer to the module's documentation and comments in the source code for more
 details on each function and how to use them.
