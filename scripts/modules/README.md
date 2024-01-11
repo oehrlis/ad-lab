@@ -55,7 +55,7 @@ To use the "CommonFunctions" module in your PowerShell scripts, follow these ste
 
 ## Functions Provided by the Module
 
-- `Generate-Password`:  Generates a random password with specified criteria.
+- `New-Password`:  Generates a random password with specified criteria.
 - `Write-Log`:          Writes log messages to the console with specified verbosity
                         and
                         optional timestamp.

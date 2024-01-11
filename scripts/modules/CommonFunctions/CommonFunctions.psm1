@@ -15,6 +15,14 @@
 #              at http://www.apache.org/licenses/
 # ------------------------------------------------------------------------------
 
+# Define logging levels
+enum LogLevel {
+    DEBUG
+    INFO
+    WARNING
+    ERROR
+}
+
 <#
 .SYNOPSIS
     A collection of common functions for PowerShell scripting.
@@ -47,7 +55,7 @@ $script:LoggingLevel = [LogLevel]::INFO
     Generates a random password with specified criteria.
 
 .DESCRIPTION
-    The Generate-Password function creates a random password of a specified length. 
+    The New-Password function creates a random password of a specified length. 
     The generated password includes at least one lowercase letter, one uppercase letter, 
     one digit, and one special character (from a set of specified special characters).
     This ensures that the password meets common complexity requirements.
@@ -56,11 +64,11 @@ $script:LoggingLevel = [LogLevel]::INFO
     Specifies the length of the password to be generated. The default length is 15 characters.
 
 .EXAMPLE
-    Generate-Password -PasswordLength 12
+    New-Password -PasswordLength 12
     Generates a 12-character long password with mixed characters including letters, digits, and special characters.
 
 .EXAMPLE
-    Generate-Password
+    New-Password
     Generates a 15-character long password (default length) with mixed characters.
 
 .NOTES
@@ -68,7 +76,7 @@ $script:LoggingLevel = [LogLevel]::INFO
     The function will continue to generate passwords until it finds one that meets the specified complexity requirements.
 
 #>
-Function Generate-Password {
+Function New-Password {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $false)]
@@ -266,7 +274,7 @@ function Ensure-Module {
             Write-Log -Message  "Installing module: $ModuleName" -Level INFO
             Install-Module -Name $ModuleName -MinimumVersion $ModuleVersion -Scope CurrentUser -Force
         } catch {
-            Exit-Script -ErrorMessage "Error installing module $ModuleName: $_"
+            Exit-Script -ErrorMessage "Error installing module $ModuleName : $_"
         }
     }
 
@@ -274,7 +282,7 @@ function Ensure-Module {
     try {
         Import-Module -Name $ModuleName -MinimumVersion $ModuleVersion
     } catch {
-        Exit-Script -ErrorMessage "Error importing module $ModuleName: $_"
+        Exit-Script -ErrorMessage "Error importing module $ModuleName : $_"
     }
 }
 
@@ -313,5 +321,5 @@ function Set-LoggingLevel {
 }
 
 # Export the functions
-Export-ModuleMember -Function Write-Log, Generate-Password, Exit-Script, Ensure-Module, Set-LoggingLevel
+Export-ModuleMember -Function Write-Log, New-Password, Exit-Script, Ensure-Module, Set-LoggingLevel
 # --- EOF ----------------------------------------------------------------------

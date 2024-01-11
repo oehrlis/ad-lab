@@ -13,7 +13,7 @@
 #              at http://www.apache.org/licenses/
 # ------------------------------------------------------------------------------
 # Import the CommonFunctions module
-$modulePath = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) "CommonFunctions.psm1"
+$modulePath = Join-Path (Split-Path (Split-Path $MyInvocation.MyCommand.Path -Parent) -Parent) "CommonFunctions.psm1"
 Import-Module $modulePath -Force
 
 # Describe the behavior of the Set-LoggingLevel function

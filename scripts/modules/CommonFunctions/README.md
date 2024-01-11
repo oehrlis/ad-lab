@@ -12,7 +12,7 @@ functionality and maintain consistency.
 
 The module provides the following functions:
 
-- **Generate-Password:** Generates a random password with specified criteria,
+- **New-Password:** Generates a random password with specified criteria,
   ensuring it meets common complexity requirements.
 - **Write-Log:** Logs messages to the console with different verbosity levels
   (DEBUG, INFO, WARNING, ERROR) and optional timestamps.
@@ -34,13 +34,13 @@ To start using the CommonFunctions module, follow these steps:
 
 ## Functions
 
-### Generate-Password
+### New-Password
 
 This function generates a random password with specified criteria, ensuring it
 meets common complexity requirements.
 
 ```powershell
-Generate-Password [-PasswordLength <int>]
+New-Password [-PasswordLength <int>]
 ```
 
 - `PasswordLength` (Optional): Specifies the length of the password to be
@@ -113,7 +113,7 @@ module:
 
 ```powershell
 # Generate a random password with default length (15 characters)
-$randomPassword = Generate-Password
+$randomPassword = New-Password
 
 # Log an informational message with a timestamp
 Write-Log -Message "This is an informational message."
@@ -130,7 +130,7 @@ For more detailed usage instructions, you can use the `Get-Help` command followe
 by the function name. For example:
 
 ```powershell
-Get-Help Generate-Password -Detailed
+Get-Help New-Password -Detailed
 ```
 
 ## License
