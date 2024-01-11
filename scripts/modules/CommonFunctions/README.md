@@ -36,7 +36,8 @@ To start using the CommonFunctions module, follow these steps:
 
 ### Generate-Password
 
-This function generates a random password with specified criteria, ensuring it meets common complexity requirements.
+This function generates a random password with specified criteria, ensuring it
+meets common complexity requirements.
 
 ```powershell
 Generate-Password [-PasswordLength <int>]
@@ -66,7 +67,8 @@ This function exits the script with optional error handling, allowing you to$
 specify an error message, custom exit code, and script name.
 
 ```powershell
-Exit-Script [-ErrorMessage <string>] [-ExitCode <int>] [-ScriptName <string>] [-IncludeTimestamp <bool>]
+Exit-Script [-ErrorMessage <string>] [-ExitCode <int>] [-ScriptName <string>]
+[-IncludeTimestamp <bool>]
 ```
 
 - `ErrorMessage` (Optional): Specifies the error message to log if an error

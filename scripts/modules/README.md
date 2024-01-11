@@ -9,7 +9,8 @@ PowerShell scripts.
 - **CommonFunctions.psd1:** This file is the module manifest for *CommonFunctions*.
   It contains metadata and module-specific information.
 - **CommonFunctions.psm1:** This file is the main module file for *CommonFunctions*.
-  It contains the actual PowerShell functions and logic that can be used in your scripts.
+  It contains the actual PowerShell functions and logic that can be used in your
+  scripts.
 - **README.md:** This file provides documentation and information about the
   *CommonFunctions* module, its purpose, functions, and usage.
 
@@ -55,9 +56,11 @@ To use the "CommonFunctions" module in your PowerShell scripts, follow these ste
 ## Functions Provided by the Module
 
 - `Generate-Password`:  Generates a random password with specified criteria.
-- `Write-Log`:          Writes log messages to the console with specified verbosity and
+- `Write-Log`:          Writes log messages to the console with specified verbosity
+                        and
                         optional timestamp.
-- `Exit-Script`:        Exits the script with optional error message and custom exit code.
+- `Exit-Script`:        Exits the script with optional error message and custom
+                        exit code.
 - `Ensure-Module`:      Ensures that a PowerShell module is installed and imported
                         with a specified minimum version.
 - `Set-LoggingLevel`:   Sets the logging level for the module.
