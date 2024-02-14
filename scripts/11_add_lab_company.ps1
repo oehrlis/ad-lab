@@ -109,7 +109,7 @@ Import-CSV -delimiter "," $UserCSVFile | foreach {
 # Update OU and set managedBy
 Write-Host "INFO: Add managed by to organizational units" 
 Set-ADOrganizationalUnit -Identity "ou=Hashicorp Solution Engineers,$PeopleDN" -ManagedBy guybarros
-Set-ADOrganizationalUnit -Identity "ou=Hashicorp Solution Architects,$PeopleDN" -ManagedBy guybarros
+Set-ADOrganizationalUnit -Identity "ou=Hashicorp Solution Architects,$PeopleDN" -ManagedBy vaultadmin
 
 # create company groups
 Write-Host "INFO: Create $Company groups" 

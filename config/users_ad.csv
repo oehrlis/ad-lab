@@ -1,4 +1,4 @@
 GivenName,Surname,Name,SamAccountName,Title,Department,telephoneNumber
-Guy,Barros,Guy Barros,guybarros,SE,Hashicorp App Admin,+44(0)123123
-Vault,Admin,Vault Admin,vaultadmin,Service Account,Hashicorp App Admin,+44(0)123123
-Viewer,Read Only,Viewer Read Only,readonly,Viewer Account,Hashicorp App Admin,+44(0)123123
+Guy,Barros,Guy Barros,guybarros,Solution Engineer,Hashicorp Solution Engineers,+44(0)123123
+Vault,Admin,Vault Admin,vaultadmin,Admin, Hashicorp Solution Architects,+44(0)123123
+Viewer,Read Only,Viewer Read Only,readonly,Viewer,Hashicorp Solution Architects,+44(0)123123
