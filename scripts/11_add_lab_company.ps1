@@ -1,6 +1,5 @@
 # ------------------------------------------------------------------------------
-# Trivadis AG, Infrastructure Managed Services
-# Saegereistrasse 29, 8152 Glattbrugg, Switzerland
+# OraDBA - Oracle Database Infrastructure and Security, 5630 Muri, Switzerland
 # ------------------------------------------------------------------------------
 # Name.......: 11_add_lab_company.ps1.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
@@ -12,9 +11,6 @@
 # Reference..: 
 # License....: Apache License Version 2.0, January 2004 as shown
 #              at http://www.apache.org/licenses/
-# ------------------------------------------------------------------------------
-# Modified...:
-# see git revision history for more information on changes/updates
 # ------------------------------------------------------------------------------
 
 # - Customization --------------------------------------------------------------
@@ -87,13 +83,8 @@ Import-Module ActiveDirectory           # load AD PS module
 Write-Host "INFO: Adding LAB company organisation ------------------------------" 
 Write-Host "INFO: Add organizational units for departments" 
 NEW-ADOrganizationalUnit -name $People -path $domainDn
-NEW-ADOrganizationalUnit -name "Senior Management" -path $PeopleDN
-NEW-ADOrganizationalUnit -name "Human Resources" -path $PeopleDN
-NEW-ADOrganizationalUnit -name "Information Technology" -path $PeopleDN 
-NEW-ADOrganizationalUnit -name "Accounting" -path $PeopleDN
-NEW-ADOrganizationalUnit -name "Research" -path $PeopleDN
-NEW-ADOrganizationalUnit -name "Sales" -path $PeopleDN
-NEW-ADOrganizationalUnit -name "Operations" -path $PeopleDN
+NEW-ADOrganizationalUnit -name "Hashicorp Solution Engineers" -path $PeopleDN
+NEW-ADOrganizationalUnit -name "Hashicorp Solution Architects" -path $PeopleDN
 
 #...and import users
 Write-Host "INFO: Import users from CSV" 
@@ -117,13 +108,8 @@ Import-CSV -delimiter "," $UserCSVFile | foreach {
 
 # Update OU and set managedBy
 Write-Host "INFO: Add managed by to organizational units" 
-Set-ADOrganizationalUnit -Identity "ou=Senior Management,$PeopleDN" -ManagedBy king
-Set-ADOrganizationalUnit -Identity "ou=Human Resources,$PeopleDN"   -ManagedBy rider
-Set-ADOrganizationalUnit -Identity "ou=Information Technology,$PeopleDN" -ManagedBy fleming
-Set-ADOrganizationalUnit -Identity "ou=Accounting,$PeopleDN"        -ManagedBy clark
-Set-ADOrganizationalUnit -Identity "ou=Research,$PeopleDN"          -ManagedBy blofeld
-Set-ADOrganizationalUnit -Identity "ou=Sales,$PeopleDN"             -ManagedBy moneypenny
-Set-ADOrganizationalUnit -Identity "ou=Operations,$PeopleDN"        -ManagedBy leitner
+Set-ADOrganizationalUnit -Identity "ou=Hashicorp Solution Engineers,$PeopleDN" -ManagedBy guybarros
+Set-ADOrganizationalUnit -Identity "ou=Hashicorp Solution Architects,$PeopleDN" -ManagedBy guybarros
 
 # create company groups
 Write-Host "INFO: Create $Company groups" 
@@ -133,46 +119,43 @@ New-ADGroup -Name "$Company Users" -SamAccountName "$Company Users" `
     -DisplayName "$Company Users" -Path $GroupDN
 
 Add-ADGroupMember -Identity "$Company Users" `
-    -Members lynd,rider,tanner,gartner,fleming,bond,walters,renton,leitner,blake
-
-Add-ADGroupMember -Identity "$Company Users" `
-    -Members dent,ward,moneypenny,scott,smith,adams,prefect,blofeld,miller,clark,king
+    -Members guybarros,vaultadmin,readonly
 
 New-ADGroup -Name "$Company DB Admins" -SamAccountName "$Company DB Admins" `
     -GroupCategory Security -GroupScope Global `
     -DisplayName "$Company DB Admins" -Path $GroupDN
 
-Add-ADGroupMember -Identity "$Company DB Admins" -Members gartner,fleming
+Add-ADGroupMember -Identity "$Company DB Admins" -Members guybarros
 
 New-ADGroup -Name "$Company Developers" -SamAccountName "$Company Developers" `
     -GroupCategory Security -GroupScope Global `
     -DisplayName "$Company Developers" -Path $GroupDN
 
 Add-ADGroupMember -Identity "$Company Developers" `
-    -Members scott,smith,adams,prefect,blofeld
+    -Members guybarros
 
 New-ADGroup -Name "$Company System Admins" -SamAccountName "$Company System Admins" `
     -GroupCategory Security -GroupScope Global `
     -DisplayName "$Company System Admins" -Path $GroupDN
 
-Add-ADGroupMember -Identity "$Company System Admins" -Members tanner,fleming
+Add-ADGroupMember -Identity "$Company System Admins" -Members guybarros, vaultadmin
 
 New-ADGroup -Name "$Company APP Admins" -SamAccountName "$Company APP Admins" `
     -GroupCategory Security -GroupScope Global `
     -DisplayName "$Company APP Admins" -Path $GroupDN
 
+Add-ADGroupMember -Identity "$Company System Admins" -Members guybarros, vaultadmin
+
 New-ADGroup -Name "$Company HR" -SamAccountName "$Company HR" `
     -GroupCategory Security -GroupScope Global `
     -DisplayName "$Company Management" -Path $GroupDN
-
-Add-ADGroupMember -Identity "$Company HR" -Members rider,lynd
 
 New-ADGroup -Name "$Company Management" -SamAccountName "$Company Management" `
     -GroupCategory Security -GroupScope Global `
     -DisplayName "$Company Management" -Path $GroupDN
 
-Add-ADGroupMember -Identity "$Company Management" -Members clark,blofeld,moneypenny
-Add-ADGroupMember -Identity "$Company Management" -Members king,rider,fleming,leitner
+Add-ADGroupMember -Identity "$Company Management" -Members guybarros
+Add-ADPrincipalGroupMembership -Identity "$Company LAB Users" -MemberOf "Remote Desktop Users" 
 
 Write-Host "INFO: Done adding LAB company organisation -------------------------" 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")

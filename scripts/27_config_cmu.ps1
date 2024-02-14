@@ -1,12 +1,12 @@
 # ------------------------------------------------------------------------------
 # OraDBA - Oracle Database Infrastructure and Security, 5630 Muri, Switzerland
 # ------------------------------------------------------------------------------
-# Name.......: 40_reset_ad_users.ps1
+# Name.......: 27_config_cmu.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2021.06.23
+# Date.......: 2021.08.17
 # Revision...: 
-# Purpose....: Script to reset the active directory users
+# Purpose....: Script to configure CMU on Active Directory
 # Notes......: ...
 # Reference..: 
 # License....: Apache License Version 2.0, January 2004 as shown
@@ -15,9 +15,10 @@
 
 # - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
+$ScriptNameFull = $MyInvocation.MyCommand.Path
 $Hostname       = (Hostname)
 $ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
-# - EOF Variables --------------------------------------------------------------
+# - EOF Default Values ---------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
 Write-Host
@@ -35,20 +36,8 @@ if ((Test-Path $ConfigScript)) {
 # - EOF Initialisation ---------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
-Import-Module ActiveDirectory
-
-# Update group membership of Trivadis LAB Users
-Write-Host "INFO: Add grup $Company LAB Users to ORA_VFR_11G and ORA_VFR_12C..."
-Add-ADPrincipalGroupMembership -Identity "$Company LAB Users" -MemberOf ORA_VFR_11G
-# ORA_VFR_12C should yet not been used for EUS. Make sure you clarify the SHA512 issues on the DB first.
-#Add-ADPrincipalGroupMembership -Identity "Trivadis LAB Users" -MemberOf ORA_VFR_12C
-
-# reset passwords
-Write-Host "INFO: Reset all User Passwords..."
-Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity guybarros
-Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity vaultadmin
-Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity readonly
-
+Write-Host '- Configure AD password filter -------------------------------------'
+Write-Host "INFO: not yet implemented"
 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
 Write-Host "INFO: ==============================================================" 
