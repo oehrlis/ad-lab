@@ -100,6 +100,9 @@ Write-Host
 Write-Log -Level INFO -Message "=============================================================="
 Write-Log -Level INFO -Message "INFO: Start $ScriptName on host $Hostname at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 
+Install-WindowsFeature -Name Server-Media-Foundation
+Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
+
 # Check and Import Required Module
 try {
     if (-not (Get-Module -ListAvailable -Name ADDSDeployment)) {
@@ -143,7 +146,7 @@ Write-Log -Level DEBUG -Message "Subnet                : $Subnet"
 Write-Log -Level DEBUG -Message "DNS Server 1          : $DNS1ClientServerAddress"
 Write-Log -Level DEBUG -Message "DNS Server 2          : $DNS2ClientServerAddress"
 Write-Log -Level DEBUG -Message "Default Password      : $PlainPassword"
-Write-Log -Level DEBUG -Message ""
+Write-Log -Level DEBUG -Message "- EOF Default Values ----------------------------------------"
 
 Write-Log -Level INFO -Message "--------------------------------------------------------------"
 Write-Log -Level INFO -Message "Install AD Role"
@@ -167,7 +170,8 @@ try {
         $computerName = $env:COMPUTERNAME
         $adminUser = [ADSI]"WinNT://$computerName/Administrator,User"
         $SecurePassword = ConvertTo-SecureString -String $PlainPassword -AsPlainText -Force
-        $adminUser.SetPassword($SecurePassword)
+        # Use plain text password directly
+        $adminUser.SetPassword($PlainPassword)
 
         Write-Log -Level INFO -Message "Creating domain controller"
         $ADDSForestParams = @{

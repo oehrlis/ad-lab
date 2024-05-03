@@ -100,6 +100,10 @@ $logFileName                = "$MyScriptBaseName.log"
 $taskName                   = "$MyScriptBaseName.Task"
 # - EOF Variables --------------------------------------------------------------
 
+# Load CommonFunctions Module
+$ModulePath = Join-Path -Path $MyScriptPath -ChildPath "Modules\CommonFunctions"
+Import-Module $ModulePath
+
 # - Functions ------------------------------------------------------------------
 # Function to list current status
 function ListStatus {

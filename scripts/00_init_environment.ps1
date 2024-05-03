@@ -162,14 +162,14 @@ if (!$PlainPassword) {
         # generate a password if password from file is empty
         if (!$PlainPassword) {
             Write-Log -Level INFO -Message "Default password from $DefaultPWDFile seems empty, generate new password"
-            $PlainPassword = GeneratePassword
+            $PlainPassword = New-Password
         } else {
             $PlainPassword=$PlainPassword.trim()
         }
     } else {
         # generate a new password
         Write-Log -Level INFO -Message "Generate new password"
-        $PlainPassword = GeneratePassword
+        $PlainPassword = New-Password
     } 
 } else {
     Write-Log -Level INFO -Message "Using password provided via config file"
