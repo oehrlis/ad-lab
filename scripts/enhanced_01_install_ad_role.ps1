@@ -89,7 +89,7 @@ try {
     New-Item -ItemType Directory -Force -Path $LogFolder
     Start-Transcript -path $LogFile
   catch {
-      Write-HostWithTimestamp "ERROR: $_"
+     Write-Log -Level INFO -Message "ERROR: $_"
       exit 1
   }
     Write-Error "Failed to start logging. Error: $_"
@@ -97,20 +97,20 @@ try {
 }
 
 Write-Host
-Write-HostWithTimestamp "INFO: ==============================================================" 
-Write-HostWithTimestamp "INFO: Start $ScriptName on host $Hostname at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+Write-Log -Level INFO -Message "INFO: ==============================================================" 
+Write-Log -Level INFO -Message "INFO: Start $ScriptName on host $Hostname at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 
 # Check and Import Required Module
 try {
     if (-not (Get-Module -ListAvailable -Name ADDSDeployment)) {
-        Write-HostWithTimestamp "INFO: The ADDSDeployment module is not installed. Attempting to install it."
+        Write-Log -Level INFO -Message "INFO: The ADDSDeployment module is not installed. Attempting to install it."
         Install-Module -Name ADDSDeployment -Scope CurrentUser -Force
-        Write-HostWithTimestamp "INFO: ADDSDeployment module installed successfully."
+        Write-Log -Level INFO -Message "INFO: ADDSDeployment module installed successfully."
     }
     Import-Module ADDSDeployment -ErrorAction Stop
-    Write-HostWithTimestamp "INFO: ADDSDeployment module imported successfully."
+    Write-Log -Level INFO -Message "INFO: ADDSDeployment module imported successfully."
   catch {
-      Write-HostWithTimestamp "ERROR: $_"
+    Write-Log -Level INFO -Message "ERROR: $_"
       exit 1
   }
     Write-Error "ERR : Failed to manage the ADDSDeployment module. Error: $_"
@@ -120,16 +120,16 @@ try {
 # call Config Script with Error Handling
 try {
     if (Test-Path -Path $ConfigFile) {
-        Write-HostWithTimestamp "INFO: load default values from $ConfigFile"
+        Write-Log -Level INFO -Message "INFO: load default values from $ConfigFile"
         . $ConfigFile
     } else {
         throw "Config file $ConfigFile not found."
     }
   catch {
-      Write-HostWithTimestamp "ERROR: $_"
+    Write-Log -Level INFO -Message "ERROR: $_"
       exit 1
   }
-    Write-HostWithTimestamp "ERR: Failed to load config file. Error: $_"
+  Write-Log -Level INFO -Message "ERR: Failed to load config file. Error: $_"
     Stop-Transcript
     exit 1
 }
@@ -204,7 +204,7 @@ try {
         }
     }
   catch {
-      Write-HostWithTimestamp "ERROR: $_"
+      Write-Log -Level INFO -Message "ERROR: $_"
       exit 1
   }
     Log-ErrorAndExit "Failed in AD Role Installation process. Error: $_"

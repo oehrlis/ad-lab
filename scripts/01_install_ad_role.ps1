@@ -116,7 +116,7 @@ try {
 # call Config Script with Error Handling
 try {
     if (Test-Path -Path $ConfigFile) {
-        Write-HostWithTimestamp "INFO: load default values from $ConfigFile"
+        Write-Log -Level INFO -Message "INFO: load default values from $ConfigFile"
         . $ConfigFile
     } else {
         throw "Config file $ConfigFile not found."

@@ -103,27 +103,27 @@ $taskName                   = "$MyScriptBaseName.Task"
 # - Functions ------------------------------------------------------------------
 # Function to list current status
 function ListStatus {
-    Write-HostWithTimestamp "INFO: Run List Status"
+    Write-Log -Level INFO -Message "INFO: Run List Status"
     # check marker file
     if (Test-Path -Path $markerPath) {
         $progress = Get-Content -Path $markerPath
-        Write-HostWithTimestamp "INFO: Marker Path: $markerPath"
-        Write-HostWithTimestamp "INFO: Current Status: Step is at '$progress'"
+        Write-Log -Level INFO -Message "INFO: Marker Path: $markerPath"
+        Write-Log -Level INFO -Message "INFO: Current Status: Step is at '$progress'"
     } else {
-        Write-HostWithTimestamp "INFO: No progress marker found. Script has not been started or is at Step1."
+        Write-Log -Level INFO -Message "INFO: No progress marker found. Script has not been started or is at Step1."
     }
 
     # Check if the scheduled task exists
     if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
-        Write-HostWithTimestamp "INFO: Scheduled task '$taskName' does exists."
+        Write-Log -Level INFO -Message "INFO: Scheduled task '$taskName' does exists."
     } else {
-        Write-HostWithTimestamp "INFO: Scheduled task '$taskName' does not exists."
+        Write-Log -Level INFO -Message "INFO: Scheduled task '$taskName' does not exists."
     }
 }
 
 # Function to clean the current status i.e. remove the marker file and the scheduler task
 function CleanStatus {
-    Write-HostWithTimestamp "INFO: Run Clean Status"
+    Write-Log -Level INFO -Message "INFO: Run Clean Status"
     Remove-StartupTask
     if (Test-Path $markerPath) {
         Remove-Item $markerPath # Clean up the marker file
@@ -140,11 +140,11 @@ function Set-StartupTask {
     $trigger = New-ScheduledTaskTrigger -AtStartup -RandomDelay (New-TimeSpan -Minutes 1)
     # Check if the scheduled task exists
     if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
-        Write-HostWithTimestamp "INFO: Scheduled task '$taskName' allready exists."
+        Write-Log -Level INFO -Message "INFO: Scheduled task '$taskName' allready exists."
     } else {
         # Register the scheduled task to run as SYSTEM, which allows it to run whether the user is logged in or not, and with highest privileges
         Register-ScheduledTask -Action $action -Trigger $trigger -TaskName $taskName -Description "Run $MyScriptBaseName at startup" -User "SYSTEM" -RunLevel Highest
-        Write-HostWithTimestamp "INFO: Scheduled task '$taskName' created."
+        Write-Log -Level INFO -Message "INFO: Scheduled task '$taskName' created."
     }
 }
 
@@ -154,15 +154,15 @@ function Remove-StartupTask {
     if (Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue) {
         # Unregister (delete) the task
         Unregister-ScheduledTask -TaskName $taskName -Confirm:$false
-        Write-HostWithTimestamp "INFO: Scheduled task '$taskName' has been removed."
+        Write-Log -Level INFO -Message "INFO: Scheduled task '$taskName' has been removed."
     } else {
-        Write-HostWithTimestamp "INFO: No scheduled task '$taskName' found to be removed."
+        Write-Log -Level INFO -Message "INFO: No scheduled task '$taskName' found to be removed."
     }
 }
 
 function Step1 {
     # Your code for Step 1
-    Write-HostWithTimestamp "INFO: Start Step 1"
+    Write-Log -Level INFO -Message "INFO: Start Step 1"
 
     # Split the string into an array of file names
     $ScriptsStep1Array = $ScriptsStep1String -split ',\s*'
@@ -170,93 +170,93 @@ function Step1 {
     # Loop through each file name
     foreach ($ScriptName in $ScriptsStep1Array) {
         # Your code to process each file name
-        Write-HostWithTimestamp "INFO: Processing file: $ScriptName"
+        Write-Log -Level INFO -Message "INFO: Processing file: $ScriptName"
         # Full path to the other script
         $ScriptPath = Join-Path -Path $MyScriptPath -ChildPath $ScriptName
 
         try {
             # Execute the script configuration script
-            Write-HostWithTimestamp "INFO: Executing script $ScriptPath"
+            Write-Log -Level INFO -Message "INFO: Executing script $ScriptPath"
             & $ScriptPath -ErrorAction Stop
         } catch {
             # Error handling for script execution
-            Write-HostWithTimestamp "ERR : An error occurred while executing $ScriptPath - $_"
+            Write-Log -Level INFO -Message "ERR : An error occurred while executing $ScriptPath - $_"
             Remove-StartupTask  # Remove startup task on error
             break  # to stop processing further scripts
         }
     }
     "Step1 completed" | Out-File -FilePath $markerPath
     if ($Reboot) {
-        Write-HostWithTimestamp "INFO: Finish Step 1, automatically reboot system"
+        Write-Log -Level INFO -Message "INFO: Finish Step 1, automatically reboot system"
         Restart-Computer -Force
     } else {
-        Write-HostWithTimestamp "INFO: Finish Step 1, please manually reboot system"
+        Write-Log -Level INFO -Message "INFO: Finish Step 1, please manually reboot system"
     }
 }
 
 function Step2 {
     # Your code for Step 2
-    Write-HostWithTimestamp "INFO: Start Step 2"
+    Write-Log -Level INFO -Message "INFO: Start Step 2"
     # Split the string into an array of file names
     $ScriptsStep2Array = $ScriptsStep2String -split ',\s*'
 
     # Loop through each file name
     foreach ($ScriptName in $ScriptsStep2Array) {
         # Your code to process each file name
-        Write-HostWithTimestamp "INFO: Processing file: $ScriptName"
+        Write-Log -Level INFO -Message "INFO: Processing file: $ScriptName"
         # Full path to the other script
         $ScriptPath = Join-Path -Path $MyScriptPath -ChildPath $ScriptName
 
         try {
             # Execute the script configuration script
-            Write-HostWithTimestamp "INFO: Executing script $ScriptPath"
+            Write-Log -Level INFO -Message "INFO: Executing script $ScriptPath"
             & $ScriptPath -ErrorAction Stop
         } catch {
             # Error handling for script execution
-            Write-HostWithTimestamp "ERR : An error occurred while executing $ScriptPath - $_"
+            Write-Log -Level INFO -Message "ERR : An error occurred while executing $ScriptPath - $_"
             Remove-StartupTask  # Remove startup task on error
             break  # to stop processing further scripts
         }
     }
     "Step2 completed" | Out-File -FilePath $markerPath
     if ($Reboot) {
-        Write-HostWithTimestamp "INFO: Finish Step 2, automatically reboot system"
+        Write-Log -Level INFO -Message "INFO: Finish Step 2, automatically reboot system"
         Restart-Computer -Force
     } else {
-        Write-HostWithTimestamp "INFO: Finish Step 2, please manually reboot system"
+        Write-Log -Level INFO -Message "INFO: Finish Step 2, please manually reboot system"
     }
 }
 
 function Step3 {
     # Your code for Step 3
-    Write-HostWithTimestamp "INFO: Start Step 3"
+    Write-Log -Level INFO -Message "INFO: Start Step 3"
     # Split the string into an array of file names
     $ScriptsStep3Array = $ScriptsStep3String -split ',\s*'
 
     # Loop through each file name
     foreach ($ScriptName in $ScriptsStep3Array) {
         # Your code to process each file name
-        Write-HostWithTimestamp "INFO: Processing file: $ScriptName"
+        Write-Log -Level INFO -Message "INFO: Processing file: $ScriptName"
         # Full path to the other script
         $ScriptPath = Join-Path -Path $MyScriptPath -ChildPath $ScriptName
 
         try {
             # Execute the script configuration script
-            Write-HostWithTimestamp "INFO: Executing script $ScriptPath"
+            Write-Log -Level INFO -Message "INFO: Executing script $ScriptPath"
             & $ScriptPath -ErrorAction Stop
         } catch {
             # Error handling for script execution
-            Write-HostWithTimestamp "ERR : An error occurred while executing $ScriptPath - $_"
+            Write-Log -Level INFO -Message "ERR : An error occurred while executing $ScriptPath - $_"
             Remove-StartupTask  # Remove startup task on error
             break  # to stop processing further scripts
         }
     }
     CleanStatus # Clean up Status
     if ($Reboot) {
-        Write-HostWithTimestamp "INFO: Finish Step 3, automatically reboot system"
+        Write-Log -Level INFO -Message "INFO: Finish Step 3, automatically reboot system"
         Restart-Computer -Force
     } else {
-        Write-HostWithTimestamp "INFO: Finish Step 3, please manually reboot system"
+        Write-Log -Level INFO -Message "INFO: Finish Step 3, please manually reboot system"
     }
 }
 
@@ -275,7 +275,7 @@ function Get-ConfigValueOrDefault {
 
 function ExitWithStatus {
     # Stop logging at the end of the script
-    Write-HostWithTimestamp "INFO: = Finish $MyScriptBaseName ==========================================="
+    Write-Log -Level INFO -Message "INFO: = Finish $MyScriptBaseName ==========================================="
     Stop-Transcript
     exit
 }
@@ -318,7 +318,7 @@ $logFile = Join-Path -Path $LogFolder -ChildPath $logFileName
 # Start logging
 Start-Transcript -Path $logFile -Append
 
-Write-HostWithTimestamp "INFO: = Start $MyScriptBaseName ============================================"
+Write-Log -Level INFO -Message "INFO: = Start $MyScriptBaseName ============================================"
 
 # List current status and exit if -ListStatus is specified
 if ($ListStatus) {
@@ -342,15 +342,15 @@ if ($Help) {
 if ($Reboot -and -not $Force) {
     $confirmation = $Host.UI.PromptForChoice("Confirmation", "Do you want to proceed with automatic reboots?", @("&Yes", "&No"), 1)
     if ($confirmation -ne 0) {
-        Write-HostWithTimestamp "INFO: Operation aborted by the user."
+        Write-Log -Level INFO -Message "INFO: Operation aborted by the user."
         ExitWithStatus
     }
     Set-StartupTask
 } elseif ($Reboot -and $Force) {
-    Write-HostWithTimestamp "INFO: Started with forced reboot"
+    Write-Log -Level INFO -Message "INFO: Started with forced reboot"
     Set-StartupTask
 } else {
-    Write-HostWithTimestamp "INFO: Started with manual reboot. Please reboot after each step..."
+    Write-Log -Level INFO -Message "INFO: Started with manual reboot. Please reboot after each step..."
 }
 
 # Check if the marker file exists and run the appropriate step
