@@ -158,10 +158,10 @@ function Write-Log {
         $formattedMessage = if ($IncludeTimestamp) { "${timestamp}: $Message" } else { $Message }
 
         switch ($Level) {
-            'DEBUG'   { Write-Host "DEBUG  : $formattedMessage" -ForegroundColor Gray }
-            'INFO'    { Write-Host "INFO   : $formattedMessage" -ForegroundColor Green }
-            'WARNING' { Write-Host "WARNING: $formattedMessage" -ForegroundColor Yellow }
-            'ERROR'   { Write-Host "ERROR  : $formattedMessage" -ForegroundColor Red }
+            'DEBUG'   { Write-Debug $formattedMessage }
+            'INFO'    { Write-Output $formattedMessage }
+            'WARNING' { Write-Warning $formattedMessage }
+            'ERROR'   { Write-Error $formattedMessage }
         }
     }
 }

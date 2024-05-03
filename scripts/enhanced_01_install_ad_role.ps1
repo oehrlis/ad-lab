@@ -54,8 +54,6 @@
 # - Begin of Customization -----------------------------------------------------
 param (
     [switch]$Help,
-    [switch]$Debug,
-    [switch]$Quiet,
     # Path to the configuration file
     [string]$ConfigFile = "00_init_environment.ps1"
 )
@@ -64,6 +62,10 @@ param (
 # - Default Values -------------------------------------------------------------
 $Hostname       = [System.Net.Dns]::GetHostName()
 $ScriptName     = $MyInvocation.MyCommand.Name
+param (
+    [string]$LogLevel = 'INFO'
+)
+
 $ScriptBaseName = [System.IO.Path]::GetFileNameWithoutExtension($ScriptName)
 $ScriptNameFull = $MyInvocation.MyCommand.Path
 $ScriptPath     = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
@@ -72,45 +74,47 @@ $LogFile        = Join-Path -Path $LogFolder -ChildPath ($ScriptBaseName + "_" +
 $ConfigFile     = Join-Path -Path (Split-Path $MyInvocation.MyCommand.Path -Parent) -ChildPath $ConfigFile
 # - End of Default Values ------------------------------------------------------
 
+# - Functions ------------------------------------------------------------------
+# - End of Functions -----------------------------------------------------------
+
 # - Initialisation -------------------------------------------------------------
 
 # Display help information if -Help parameter is used
 if ($Help) {
-    Get-Help ".\$ScriptName" -detailed
+    Get-Help .\01_install_ad_role.ps1 -detailed
     exit 
 }
 
-# Load CommonFunctions Module
-$ModulePath = Join-Path -Path $ScriptPath -ChildPath "Modules\CommonFunctions"
-Import-Module $ModulePath
-
-# Set log levels
-if ($Debug) { Set-LoggingLevel -NewLevel DEBUG }    # Set Logging Level DEBUG
-if ($Quiet) { Set-LoggingLevel -NewLevel WARNING }  # Set Logging Level QUIET
-
-# start logging
 try {
     New-Item -ItemType Directory -Force -Path $LogFolder
     Start-Transcript -path $LogFile
-} catch {
-    Exit-Script -ErrorMessage "Failed to start logging. Error: $_"
+  catch {
+      Write-HostWithTimestamp "ERROR: $_"
+      exit 1
+  }
+    Write-Error "Failed to start logging. Error: $_"
+    exit 1
 }
 
 Write-Host
-Write-Log -Level INFO -Message "=============================================================="
-Write-Log -Level INFO -Message "INFO: Start $ScriptName on host $Hostname at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+Write-HostWithTimestamp "INFO: ==============================================================" 
+Write-HostWithTimestamp "INFO: Start $ScriptName on host $Hostname at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 
 # Check and Import Required Module
 try {
     if (-not (Get-Module -ListAvailable -Name ADDSDeployment)) {
-        Write-Log -Level INFO -Message "The ADDSDeployment module is not installed. Attempting to install it."
+        Write-HostWithTimestamp "INFO: The ADDSDeployment module is not installed. Attempting to install it."
         Install-Module -Name ADDSDeployment -Scope CurrentUser -Force
-        Write-Log -Level INFO -Message "ADDSDeployment module installed successfully."
+        Write-HostWithTimestamp "INFO: ADDSDeployment module installed successfully."
     }
     Import-Module ADDSDeployment -ErrorAction Stop
-    Write-Log -Level INFO -Message "ADDSDeployment module imported successfully."
-} catch {
-    Exit-Script -ErrorMessage "Failed to manage the ADDSDeployment module. Error: $_"
+    Write-HostWithTimestamp "INFO: ADDSDeployment module imported successfully."
+  catch {
+      Write-HostWithTimestamp "ERROR: $_"
+      exit 1
+  }
+    Write-Error "ERR : Failed to manage the ADDSDeployment module. Error: $_"
+    exit 1
 }
 
 # call Config Script with Error Handling
@@ -121,41 +125,46 @@ try {
     } else {
         throw "Config file $ConfigFile not found."
     }
-} catch {
-    Exit-Script -ErrorMessage "Failed to load config file. Error: $_"
+  catch {
+      Write-HostWithTimestamp "ERROR: $_"
+      exit 1
+  }
+    Write-HostWithTimestamp "ERR: Failed to load config file. Error: $_"
+    Stop-Transcript
+    exit 1
 }
 # - EOF Initialisation ---------------------------------------------------------
 
-Write-Log -Level DEBUG -Message "Default Values -----------------------------------------------"
-Write-Log -Level DEBUG -Message "Script Name           : $ScriptName"
-Write-Log -Level DEBUG -Message "Script Path           : $ScriptNameFull"
-Write-Log -Level DEBUG -Message "Script Folder         : $ScriptPath"
-Write-Log -Level DEBUG -Message "Log Folder            : $LogFolder"
-Write-Log -Level DEBUG -Message "Log File              : $LogFile"
-Write-Log -Level DEBUG -Message "Config Folder         : $ConfigPath"
-Write-Log -Level DEBUG -Message "Config File           : $ConfigFile"
-Write-Log -Level DEBUG -Message "Password File         : $DefaultPWDFile"
-Write-Log -Level DEBUG -Message "Network Domain Name   : $NetworkDomainName"
-Write-Log -Level DEBUG -Message "NetBios Name          : $netbiosDomain"
-Write-Log -Level DEBUG -Message "AD Domain Mode        : $ADDomainMode"
-Write-Log -Level DEBUG -Message "Host IP Address       : $ServerAddress"
-Write-Log -Level DEBUG -Message "Subnet                : $Subnet"
-Write-Log -Level DEBUG -Message "DNS Server 1          : $DNS1ClientServerAddress"
-Write-Log -Level DEBUG -Message "DNS Server 2          : $DNS2ClientServerAddress"
-Write-Log -Level DEBUG -Message "Default Password      : $PlainPassword"
-Write-Log -Level DEBUG -Message ""
+Log-Info "Default Values -----------------------------------------------"
+Log-Info "Script Name           : $ScriptName"
+Log-Info "Script Path           : $ScriptNameFull"
+Log-Info "Script Folder         : $ScriptPath"
+Log-Info "Log Folder            : $LogFolder"
+Log-Info "Log File              : $LogFile"
+Log-Info "Config Folder         : $ConfigPath"
+Log-Info "Config File           : $ConfigFile"
+Log-Info "Password File         : $DefaultPWDFile"
+Log-Info "Network Domain Name   : $NetworkDomainName"
+Log-Info "NetBios Name          : $netbiosDomain"
+Log-Info "AD Domain Mode        : $ADDomainMode"
+Log-Info "Host IP Address       : $ServerAddress"
+Log-Info "Subnet                : $Subnet"
+Log-Info "DNS Server 1          : $DNS1ClientServerAddress"
+Log-Info "DNS Server 2          : $DNS2ClientServerAddress"
+Log-Info "Default Password      : $PlainPassword"
+Log-Info ""
 
-Write-Log -Level INFO -Message "--------------------------------------------------------------"
-Write-Log -Level INFO -Message "Install AD Role"
+Log-Info "--------------------------------------------------------------"
+Log-Info "Install AD Role"
 
 try {
     $computerSystem = Get-WmiObject Win32_ComputerSystem
     if ($computerSystem.PartOfDomain -eq $false) {
-        Write-Log -Level INFO -Message "Installing AD-Domain-Services"
+        Log-Info "Installing AD-Domain-Services"
         Import-Module ServerManager
         Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
 
-        Write-Log -Level INFO -Message "Relax password complexity"
+        Log-Info "Relax password complexity"
         # Disable password complexity policy
         $secPolConfigPath = "C:\secpol.cfg"
         secedit /export /cfg $secPolConfigPath
@@ -169,7 +178,7 @@ try {
         $SecurePassword = ConvertTo-SecureString -String $PlainPassword -AsPlainText -Force
         $adminUser.SetPassword($SecurePassword)
 
-        Write-Log -Level INFO -Message "Creating domain controller"
+        Log-Info "Creating domain controller"
         $ADDSForestParams = @{
             SafeModeAdministratorPassword = $SecurePassword
             CreateDnsDelegation           = $false
@@ -187,16 +196,21 @@ try {
         Import-Module ADDSDeployment
         Install-ADDSForest @ADDSForestParams
 
-        Write-Log -Level INFO -Message "Configure network adapter"
+        Log-Info "Configure network adapter"
         $newDNSServers = $DNS1ClientServerAddress, $DNS2ClientServerAddress
         $adapters = Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object { $_.IPAddress -and ($_.IPAddress).StartsWith($Subnet) }
         foreach ($adapter in $adapters) {
             $adapter.SetDNSServerSearchOrder($newDNSServers)
         }
     }
-} catch {
-    Exit-Script -ErrorMessage "Failed in AD Role Installation process. Error: $_"
+  catch {
+      Write-HostWithTimestamp "ERROR: $_"
+      exit 1
+  }
+    Log-ErrorAndExit "Failed in AD Role Installation process. Error: $_"
 }
 
-Exit-Script
+Log-Info "Finish $ScriptName $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+Log-Info "=============================================================="
+Stop-Transcript
 # --- EOF ----------------------------------------------------------------------

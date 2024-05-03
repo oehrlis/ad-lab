@@ -120,6 +120,6 @@ Write-Host 'INFO: Successfully finish setup AD '
 Write-Host "INFO: Host      : $NAT_HOSTNAME"
 Write-Host "INFO: Domain    : $NetworkDomainName"
 Write-Host "INFO: --------------------------------------------------------------" 
-Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: Finish $ScriptName $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 Write-Host "INFO: ==============================================================" 
 # --- EOF ----------------------------------------------------------------------

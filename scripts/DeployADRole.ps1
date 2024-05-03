@@ -280,15 +280,7 @@ function ExitWithStatus {
     exit
 }
 
-function Write-HostWithTimestamp {
-    param (
-        [Parameter(Mandatory=$true)]
-        [string]$Message
-    )
 
-    $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-    Write-Host "${timestamp}: $Message"
-}
 # - End of Functions -----------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------

@@ -30,51 +30,33 @@ $Company                    = "Trivadis LAB"        # Company name
 $OracleBase                 = "C:\u00\app\oracle"   # Oracle Base Folder              
 # - End of Customization -------------------------------------------------------
 
-# - Functions ------------------------------------------------------------------
-Function GeneratePassword {
-    param ([int]$PasswordLength = 15 )
-    $AllowedPasswordCharacters = [char[]]'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_+-.'
-    $Regex = "(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W)"
-
-    do {
-            $Password = ([string]($AllowedPasswordCharacters |
-            Get-Random -Count $PasswordLength) -replace ' ')
-       }    until ($Password -cmatch $Regex)
-    $Password
-}
-
-function Write-HostWithTimestamp {
-    param (
-        [Parameter(Mandatory=$true)]
-        [string]$Message
-    )
-
-    $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-    Write-Host "${timestamp}: $Message"
-}
-# - End of Functions -----------------------------------------------------------
-
 # - Default Values -------------------------------------------------------------
-Write-Host "INFO: Set the default configuration values ------------------------" 
+Write-Log -Level INFO -Message "INFO: Set the default configuration values ------------------------" 
+$ConfigScriptName       = $MyInvocation.MyCommand.Name
 $ConfigScriptNameFull   = $MyInvocation.MyCommand.Path
 $ScriptPath             = (Split-Path $ConfigScriptNameFull -Parent)
-$ConfigPath             = (Split-Path $ScriptPath -Parent) + "\config"
-$DefaultPWDFile         = $ConfigPath + "\default_pwd_windows.txt"
-$DefaultConfigFile      = $ConfigPath + "\default_configuration.txt"
-$UserCSVFile            = $ConfigPath + "\users_ad.csv"
-$HostCSVFile            = $ConfigPath + "\hosts.csv"
-$RootCAFile             = $ConfigPath + "\rootCA.cer"
+$ConfigPath             = Join-Path -Path (Split-Path $ScriptPath -Parent) -ChildPath "config"
+$DefaultPWDFile         = Join-Path -Path $ConfigPath -ChildPath "default_pwd_windows.txt"
+$DefaultConfigFile      = Join-Path -Path $ConfigPath -ChildPath "default_configuration.txt"
+$UserCSVFile            = Join-Path -Path $ConfigPath -ChildPath "users_ad.csv"
+$HostCSVFile            = Join-Path -Path $ConfigPath -ChildPath "hosts.csv"
+$RootCAFile             = Join-Path -Path $ConfigPath -ChildPath "rootCA.cer"
+# - End of Default Values ------------------------------------------------------
+
+# Load CommonFunctions Module
+$ModulePath = Join-Path -Path $ScriptPath -ChildPath "Modules\CommonFunctions"
+Import-Module $ModulePath
 
 # call Config Script
 if ((Test-Path $DefaultConfigFile)) {
-    Write-Host "INFO: load default config values from $DefaultConfigFile"
+    Write-Log -Level INFO -Message "Load default config values from $DefaultConfigFile"
     $DefaultConfigHash = Get-Content -raw -Path $DefaultConfigFile | ConvertFrom-StringData
 } else {
-    Write-Error "WARN : could not load default values"
+    Write-Log -Level WARNING -Message "Could not load default values"
 }
 
 # set default values from Config Hash
-Write-Host "INFO: set default config values from config hash"
+Write-Log -Level INFO -Message "Set default config values from config hash"
 if ($DefaultConfigHash.NetworkDomainName) {
     $NetworkDomainName = $DefaultConfigHash.NetworkDomainName
 }
@@ -175,54 +157,53 @@ if (!$Subnet) {
 if (!$PlainPassword) { 
     # get default password from file
     if ((Test-Path $DefaultPWDFile)) {
-        Write-Host "INFO: Get default password from $DefaultPWDFile"
+        Write-Log -Level INFO -Message "Get default password from $DefaultPWDFile"
         $PlainPassword=Get-Content -Path  $DefaultPWDFile -TotalCount 1
         # generate a password if password from file is empty
         if (!$PlainPassword) {
-            Write-Host "INFO: Default password from $DefaultPWDFile seems empty, generate new password"
+            Write-Log -Level INFO -Message "Default password from $DefaultPWDFile seems empty, generate new password"
             $PlainPassword = GeneratePassword
         } else {
             $PlainPassword=$PlainPassword.trim()
         }
     } else {
         # generate a new password
-        Write-Error "INFO: Generate new password"
+        Write-Log -Level INFO -Message "Generate new password"
         $PlainPassword = GeneratePassword
     } 
 } else {
-    Write-Host "INFO: Using password provided via config file"
+    Write-Log -Level INFO -Message "Using password provided via config file"
 }
 # Create secure Password string
 $SecurePassword = ConvertTo-SecureString -AsPlainText $PlainPassword -Force
 
 # update password file
-Write-Host "INFO: Write default password to $DefaultPWDFile"
+Write-Log -Level INFO -Message "INFO: Write default password to $DefaultPWDFile"
 Set-Content $DefaultPWDFile $PlainPassword
 # - EOF Default Values ---------------------------------------------------------
 
 # - Main --------------------------------------------------------------------
 if ($ScriptDebug) { 
-    Write-Host "INFO: Default Values ----------------------------------------------"
-    Write-Host "    Script Name           : $ScriptName"
-    Write-Host "    Script full qualified : $ScriptNameFull"
-    Write-Host "    Script Path           : $ScriptPath"
-    Write-Host "    Config Path           : $ConfigPath"
-    Write-Host "    Password File         : $DefaultPWDFile"
-    Write-Host "    Network Domain Name   : $NetworkDomainName"
-    Write-Host "    NetBios Name          : $netbiosDomain"
-    Write-Host "    AD Domain Mode        : $ADDomainMode"
-    Write-Host "    Host IP Address       : $ServerAddress"
-    Write-Host "    Subnet                : $Subnet"
-    Write-Host "    DNS Server 1          : $DNS1ClientServerAddress"
-    Write-Host "    DNS Server 2          : $DNS2ClientServerAddress"
-    Write-Host "    Default Password      : $PlainPassword"
-    Write-Host "    OU User Name          : $People"
-    Write-Host "    OU Group Name         : $Groups"
-    Write-Host "    Company Name          : $Company"
-    Write-Host "    User CSV File         : $UserCSVFile"
-    Write-Host "    Host CSV File         : $HostCSVFile"
-    Write-Host "    Oracle Base Folder    : $OracleBase"
-    
-    Write-Host "INFO: -------------------------------------------------------------"
+    Write-Log -Level INFO -Message "Default Values ----------------------------------------------"
+    Write-Log -Level INFO -Message "    Script Name           : $ScriptName"
+    Write-Log -Level INFO -Message "    Script full qualified : $ScriptNameFull"
+    Write-Log -Level INFO -Message "    Script Path           : $ScriptPath"
+    Write-Log -Level INFO -Message "    Config Path           : $ConfigPath"
+    Write-Log -Level INFO -Message "    Password File         : $DefaultPWDFile"
+    Write-Log -Level INFO -Message "    Network Domain Name   : $NetworkDomainName"
+    Write-Log -Level INFO -Message "    NetBios Name          : $netbiosDomain"
+    Write-Log -Level INFO -Message "    AD Domain Mode        : $ADDomainMode"
+    Write-Log -Level INFO -Message "    Host IP Address       : $ServerAddress"
+    Write-Log -Level INFO -Message "    Subnet                : $Subnet"
+    Write-Log -Level INFO -Message "    DNS Server 1          : $DNS1ClientServerAddress"
+    Write-Log -Level INFO -Message "    DNS Server 2          : $DNS2ClientServerAddress"
+    Write-Log -Level INFO -Message "    Default Password      : $PlainPassword"
+    Write-Log -Level INFO -Message "    OU User Name          : $People"
+    Write-Log -Level INFO -Message "    OU Group Name         : $Groups"
+    Write-Log -Level INFO -Message "    Company Name          : $Company"
+    Write-Log -Level INFO -Message "    User CSV File         : $UserCSVFile"
+    Write-Log -Level INFO -Message "    Host CSV File         : $HostCSVFile"
+    Write-Log -Level INFO -Message "    Oracle Base Folder    : $OracleBase"
+    Write-Log -Level INFO -Message "-------------------------------------------------------------"
 }
 # --- EOF ----------------------------------------------------------------------

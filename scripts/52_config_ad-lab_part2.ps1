@@ -19,7 +19,7 @@ $ScriptBaseName = $MyInvocation.MyCommand.Name.Split(".")[0]
 $ScriptNameFull = $MyInvocation.MyCommand.Path
 $ScriptFolder   = (Split-Path $MyInvocation.MyCommand.Path -Parent)
 $LogFolder      = (Split-Path $MyInvocation.MyCommand.Path -Parent|Split-Path -Parent) + "\logs"
-$LogFile        = $LogFolder + "\" + $ScriptBaseName + ".log"
+$LogFile        = Join-Path -Path $LogFolder -ChildPath $ScriptBaseName + ".log"
 $StageFolder    = (Split-Path $MyInvocation.MyCommand.Path -Parent|Split-Path -Parent|Split-Path -Parent)
 # - EOF Default Values ---------------------------------------------------------
 

@@ -144,6 +144,6 @@ $NAT_HOSTNAME=hostname
 Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
 
 Write-Host "INFO: Done configuring DNS -----------------------------------------" 
-Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: Finish $ScriptName $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 Write-Host "INFO: ==============================================================" 
 # --- EOF ----------------------------------------------------------------------

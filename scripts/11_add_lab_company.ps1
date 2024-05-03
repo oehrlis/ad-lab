@@ -1,7 +1,7 @@
 # ------------------------------------------------------------------------------
 # OraDBA - Oracle Database Infrastructure and Security, 5630 Muri, Switzerland
 # ------------------------------------------------------------------------------
-# Name.......: 11_add_lab_company.ps1.ps1
+# Name.......: 11_add_lab_company.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
 # Date.......: 2021.08.17
@@ -172,6 +172,6 @@ Add-ADGroupMember -Identity "$Company Management" -Members king,rider,fleming,le
 Add-ADPrincipalGroupMembership -Identity "Trivadis LAB Users" -MemberOf "Remote Desktop Users" 
 
 Write-Host "INFO: Done adding LAB company organisation -------------------------" 
-Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: Finish $ScriptName $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 Write-Host "INFO: ==============================================================" 
 # --- EOF ----------------------------------------------------------------------

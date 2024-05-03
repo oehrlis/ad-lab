@@ -16,24 +16,21 @@
 $modulePath = Join-Path (Split-Path (Split-Path $MyInvocation.MyCommand.Path -Parent) -Parent) "CommonFunctions.psm1"
 Import-Module $modulePath -Force
 
-# Describe the behavior of the Use-Module function
-Describe 'Use-Module Tests' {
-
-    # Test with a well-known, commonly available module
-    $testModuleName = "Pester"
-    $testModuleVersion = "5.0.0" # Specify a version you know is available
-
+Describe "Use-Module Tests for PowerShellGet" {
     It "Installs and imports the module if it's not already present" {
+        $testModuleName = "PowerShellGet"
+        $testModuleVersion = "2.0.0" # Specify a version that you expect to be available
+    
         # Check if the module is already installed
-        $module = Get-Module -ListAvailable -Name $testModuleName | Where-Object { $_.Version -ge $testModuleVersion }
+        $module = Get-Module -ListAvailable -Name $testModuleName -MinimumVersion $testModuleVersion
         
         if (-not $module) {
             # The module is not installed, let's test the installation
             Use-Module -ModuleName $testModuleName -ModuleVersion $testModuleVersion
 
             # Verify that the module is now installed
-            $module = Get-Module -ListAvailable -Name $testModuleName | Where-Object { $_.Version -ge $testModuleVersion }
-            $module | Should -Not -Be $null
+            $installedModule = Get-Module -ListAvailable -Name $testModuleName -MinimumVersion $testModuleVersion
+            $installedModule | Should -Not -Be $null
         } else {
             # The module is already installed, just verify the import functionality
             Use-Module -ModuleName $testModuleName -ModuleVersion $testModuleVersion
@@ -44,4 +41,5 @@ Describe 'Use-Module Tests' {
         }
     }
 }
+
 # --- EOF ----------------------------------------------------------------------

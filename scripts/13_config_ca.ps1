@@ -118,6 +118,6 @@ Write-Host $cmd
 Write-Host $output
 
 Write-Host "INFO: Done configuring CA ------------------------------------------" 
-Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: Finish $ScriptName $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 Write-Host "INFO: ==============================================================" 
 # --- EOF ----------------------------------------------------------------------

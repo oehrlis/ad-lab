@@ -116,6 +116,6 @@ if (Get-ADUser -Filter "sAMAccountName -eq 'vagrant'") {
 }
 
 Write-Host "INFO: Finished configuring the service principles ------------------" 
-Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
+Write-Host "INFO: Finish $ScriptName $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 Write-Host "INFO: ==============================================================" 
 # --- EOF ----------------------------------------------------------------------
