@@ -4,8 +4,8 @@
 # Name.......: 01_install_ad_role.ps1
 # Author.....: Stefan Oehrli (oes) scripts@oradba.ch
 # Editor.....: Stefan Oehrli
-# Date.......: 2024.01.09
-# Version....: 0.1.0
+# Date.......: 2024.05.06
+# Version....: 0.2.0
 # Purpose....: Script to install Active Directory Role
 # Notes......: ...
 # Reference..: 
@@ -98,7 +98,7 @@ try {
 
 Write-Host
 Write-Log -Level INFO -Message "=============================================================="
-Write-Log -Level INFO -Message "INFO: Start $ScriptName on host $Hostname at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+Write-Log -Level INFO -Message "Start $ScriptName on host $Hostname at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 
 Install-WindowsFeature -Name Server-Media-Foundation
 Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
@@ -119,7 +119,7 @@ try {
 # call Config Script with Error Handling
 try {
     if (Test-Path -Path $ConfigFile) {
-        Write-Log -Level INFO -Message "INFO: load default values from $ConfigFile"
+        Write-Log -Level INFO -Message "load default values from $ConfigFile"
         . $ConfigFile
     } else {
         throw "Config file $ConfigFile not found."
@@ -148,58 +148,64 @@ Write-Log -Level DEBUG -Message "DNS Server 2          : $DNS2ClientServerAddres
 Write-Log -Level DEBUG -Message "Default Password      : $PlainPassword"
 Write-Log -Level DEBUG -Message "- EOF Default Values ----------------------------------------"
 
-Write-Log -Level INFO -Message "--------------------------------------------------------------"
-Write-Log -Level INFO -Message "Install AD Role"
-
-try {
-    $computerSystem = Get-WmiObject Win32_ComputerSystem
-    if ($computerSystem.PartOfDomain -eq $false) {
-        Write-Log -Level INFO -Message "Installing AD-Domain-Services"
-        Import-Module ServerManager
-        Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
-
-        Write-Log -Level INFO -Message "Relax password complexity"
-        # Disable password complexity policy
-        $secPolConfigPath = "C:\secpol.cfg"
-        secedit /export /cfg $secPolConfigPath
-        (Get-Content $secPolConfigPath).replace("PasswordComplexity = 1", "PasswordComplexity = 0").replace("PasswordHistorySize = 24", "PasswordHistorySize = 0") | Set-Content $secPolConfigPath
-        secedit /configure /db C:\Windows\security\local.sdb /cfg $secPolConfigPath /areas SECURITYPOLICY
-        Remove-Item -Force $secPolConfigPath -Confirm:$false
-
-        # Set administrator password
-        $computerName = $env:COMPUTERNAME
-        $adminUser = [ADSI]"WinNT://$computerName/Administrator,User"
-        $SecurePassword = ConvertTo-SecureString -String $PlainPassword -AsPlainText -Force
-        # Use plain text password directly
-        $adminUser.SetPassword($PlainPassword)
-
-        Write-Log -Level INFO -Message "Creating domain controller"
-        $ADDSForestParams = @{
-            SafeModeAdministratorPassword = $SecurePassword
-            CreateDnsDelegation           = $false
-            DatabasePath                  = "C:\Windows\NTDS"
-            DomainMode                    = $ADDomainMode
-            ForestMode                    = $ADDomainMode
-            DomainName                    = $NetworkDomainName
-            DomainNetbiosName             = $netbiosDomain
-            InstallDns                    = $true
-            LogPath                       = "C:\Windows\NTDS"
-            NoRebootOnCompletion          = $true
-            SysvolPath                    = "C:\Windows\SYSVOL"
-            Force                         = $true
+# Check if Active Directory Domain Services feature is installed
+if (-not (Get-WindowsFeature -Name AD-Domain-Services -ErrorAction SilentlyContinue)) {
+    # If not installed, proceed with installing AD DS
+    Write-Log -Level INFO -Message "--------------------------------------------------------------"
+    Write-Log -Level INFO -Message "Install AD Role"
+    
+    try {
+        $computerSystem = Get-WmiObject Win32_ComputerSystem
+        if ($computerSystem.PartOfDomain -eq $false) {
+            Write-Log -Level INFO -Message "Installing AD-Domain-Services"
+            Import-Module ServerManager
+            Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
+    
+            Write-Log -Level INFO -Message "Relax password complexity"
+            # Disable password complexity policy
+            $secPolConfigPath = "C:\secpol.cfg"
+            secedit /export /cfg $secPolConfigPath
+            (Get-Content $secPolConfigPath).replace("PasswordComplexity = 1", "PasswordComplexity = 0").replace("PasswordHistorySize = 24", "PasswordHistorySize = 0") | Set-Content $secPolConfigPath
+            secedit /configure /db C:\Windows\security\local.sdb /cfg $secPolConfigPath /areas SECURITYPOLICY
+            Remove-Item -Force $secPolConfigPath -Confirm:$false
+    
+            # Set administrator password
+            $computerName = $env:COMPUTERNAME
+            $adminUser = [ADSI]"WinNT://$computerName/Administrator,User"
+            $SecurePassword = ConvertTo-SecureString -String $PlainPassword -AsPlainText -Force
+            # Use plain text password directly
+            $adminUser.SetPassword($PlainPassword)
+    
+            Write-Log -Level INFO -Message "Creating domain controller"
+            $ADDSForestParams = @{
+                SafeModeAdministratorPassword = $SecurePassword
+                CreateDnsDelegation           = $false
+                DatabasePath                  = "C:\Windows\NTDS"
+                DomainMode                    = $ADDomainMode
+                ForestMode                    = $ADDomainMode
+                DomainName                    = $NetworkDomainName
+                DomainNetbiosName             = $netbiosDomain
+                InstallDns                    = $true
+                LogPath                       = "C:\Windows\NTDS"
+                NoRebootOnCompletion          = $true
+                SysvolPath                    = "C:\Windows\SYSVOL"
+                Force                         = $true
+            }
+            Import-Module ADDSDeployment
+            Install-ADDSForest @ADDSForestParams
+    
+            Write-Log -Level INFO -Message "Configure network adapter"
+            $newDNSServers = $DNS1ClientServerAddress, $DNS2ClientServerAddress
+            $adapters = Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object { $_.IPAddress -and ($_.IPAddress).StartsWith($Subnet) }
+            foreach ($adapter in $adapters) {
+                $adapter.SetDNSServerSearchOrder($newDNSServers)
+            }
         }
-        Import-Module ADDSDeployment
-        Install-ADDSForest @ADDSForestParams
-
-        Write-Log -Level INFO -Message "Configure network adapter"
-        $newDNSServers = $DNS1ClientServerAddress, $DNS2ClientServerAddress
-        $adapters = Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object { $_.IPAddress -and ($_.IPAddress).StartsWith($Subnet) }
-        foreach ($adapter in $adapters) {
-            $adapter.SetDNSServerSearchOrder($newDNSServers)
-        }
+    } catch {
+        Exit-Script -ErrorMessage "Failed in AD Role Installation process. Error: $_"
     }
-} catch {
-    Exit-Script -ErrorMessage "Failed in AD Role Installation process. Error: $_"
+} else {
+    Write-Log -Level INFO -Message "This system is already a domain controller."
 }
 
 Exit-Script

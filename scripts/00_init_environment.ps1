@@ -4,8 +4,8 @@
 # Name.......: 00_init_environment.ps1
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
-# Date.......: 2021.06.23
-# Revision...: 
+# Date.......: 2024.05.06
+# Version....: 0.2.0
 # Purpose....: Initialize and configure the default values
 # Notes......: ...
 # Reference..: 
@@ -31,7 +31,7 @@ $OracleBase                 = "C:\u00\app\oracle"   # Oracle Base Folder
 # - End of Customization -------------------------------------------------------
 
 # - Default Values -------------------------------------------------------------
-Write-Log -Level INFO -Message "INFO: Set the default configuration values ------------------------" 
+Write-Log -Level INFO -Message "Set the default configuration values ------------------------" 
 $ConfigScriptName       = $MyInvocation.MyCommand.Name
 $ConfigScriptNameFull   = $MyInvocation.MyCommand.Path
 $ScriptPath             = (Split-Path $ConfigScriptNameFull -Parent)
@@ -178,7 +178,7 @@ if (!$PlainPassword) {
 $SecurePassword = ConvertTo-SecureString -AsPlainText $PlainPassword -Force
 
 # update password file
-Write-Log -Level INFO -Message "INFO: Write default password to $DefaultPWDFile"
+Write-Log -Level INFO -Message "Write default password to $DefaultPWDFile"
 Set-Content $DefaultPWDFile $PlainPassword
 # - EOF Default Values ---------------------------------------------------------
 

@@ -25,10 +25,17 @@ Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d
 # - EOF Initialisation ---------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
-# install chocolatey
-Write-Host '- Install chocolatey -----------------------------------------------'
 
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+# Check if Chocolatey is installed
+if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+    # If not installed, run installation script
+    Write-Host '- Install chocolatey -----------------------------------------------'
+    Set-ExecutionPolicy Bypass -Scope Process -Force; 
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; 
+    iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+} else {
+    Write-Host '- Chocolatey is already installed ----------------------------------'
+}
 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
 Write-Host "INFO: ==============================================================" 
