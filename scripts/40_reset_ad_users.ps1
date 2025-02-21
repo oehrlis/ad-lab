@@ -13,21 +13,53 @@
 #              at http://www.apache.org/licenses/
 # ------------------------------------------------------------------------------
 
+# - Begin of Customization -----------------------------------------------------
+param (
+    [switch]$Help,
+    [switch]$Debug,
+    [switch]$Quiet,
+    # Path to the configuration file
+    [string]$ConfigFile = "00_init_environment.ps1"
+)
+# - End of Customization -------------------------------------------------------
+
 # - Default Values -------------------------------------------------------------
+$Hostname       = [System.Net.Dns]::GetHostName()
 $ScriptName     = $MyInvocation.MyCommand.Name
-$Hostname       = (Hostname)
-$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
+$ScriptBaseName = [System.IO.Path]::GetFileNameWithoutExtension($ScriptName)
+$ScriptNameFull = $MyInvocation.MyCommand.Path
+$ScriptPath     = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
+$LogFolder      = Join-Path -Path (Split-Path $ScriptPath -Parent) -ChildPath "logs"
+$LogFile        = Join-Path -Path $LogFolder -ChildPath ($ScriptBaseName + "_" + (Get-Date -Format 'yyyyMMdd-HHmmss') + ".log")
+$ConfigFile     = Join-Path -Path (Split-Path $MyInvocation.MyCommand.Path -Parent) -ChildPath $ConfigFile
 # - EOF Variables --------------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
+
+# Load CommonFunctions Module
+$ModulePath = Join-Path -Path $ScriptPath -ChildPath "Modules\CommonFunctions"
+Import-Module $ModulePath
+
+# Set log levels
+if ($Debug) { Set-LoggingLevel -NewLevel DEBUG }    # Set Logging Level DEBUG
+if ($Quiet) { Set-LoggingLevel -NewLevel WARNING }  # Set Logging Level QUIET
+
+# start logging
+try {
+    New-Item -ItemType Directory -Force -Path $LogFolder
+    Start-Transcript -path $LogFile
+} catch {
+    Exit-Script -ErrorMessage "Failed to start logging. Error: $_"
+}
+
 Write-Host
 Write-Host "INFO: ==============================================================" 
 Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
 
 # call Config Script
-if ((Test-Path $ConfigScript)) {
-    Write-Host "INFO: load default values from $DefaultPWDFile"
-    . $ConfigScript
+if ((Test-Path $ConfigFile)) {
+    Write-Host "INFO: load default values from $ConfigFile"
+    . $ConfigFile
 } else {
     Write-Error "ERROR: could not load default values"
     exit 1
@@ -38,7 +70,7 @@ if ((Test-Path $ConfigScript)) {
 Import-Module ActiveDirectory
 
 # Update group membership of Trivadis LAB Users
-Write-Host "INFO: Add grup Trivadis LAB Users to ORA_VFR_11G and ORA_VFR_12C..."
+Write-Host "INFO: Add group Trivadis LAB Users to ORA_VFR_11G and ORA_VFR_12C..."
 Add-ADPrincipalGroupMembership -Identity "Trivadis LAB Users" -MemberOf ORA_VFR_11G
 # ORA_VFR_12C should yet not been used for EUS. Make sure you clarify the SHA512 issues on the DB first.
 #Add-ADPrincipalGroupMembership -Identity "Trivadis LAB Users" -MemberOf ORA_VFR_12C
