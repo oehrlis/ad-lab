@@ -71,7 +71,8 @@ Write-Host "      Company Name      : $company"
 Write-Host "      Root CA           : $RootCAFile"
 
 # Check if ADCS feature is installed
-if (-not (Get-WindowsFeature -Name ADCS-Cert-Authority -ErrorAction SilentlyContinue)) {
+$adcsFeature = Get-WindowsFeature -Name ADCS-Cert-Authority
+if ($adcsFeature.Installed -eq $false) {
     # If not installed, install ADCS feature
     Write-Host 'Install Role ADCS-Cert-Authority...'
     Install-WindowsFeature ADCS-Cert-Authority -IncludeManagementTools
