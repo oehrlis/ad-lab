@@ -5,8 +5,8 @@
 # Author.....: Stefan Oehrli (oes) scripts@oradba.ch
 # Editor.....: Stefan Oehrli
 # Date.......: 2024.05.06
-# Version....: 0.2.0
-# Purpose....: Script to install Active Directory Role
+# Version....: 0.2.1
+# Purpose....: Script to install Active Directory Role and promote to DC
 # Notes......: ...
 # Reference..: 
 # License....: Apache License Version 2.0, January 2004 as shown
@@ -64,16 +64,12 @@ param (
 # - Default Values -------------------------------------------------------------
 $Hostname       = [System.Net.Dns]::GetHostName()
 $ScriptName     = $MyInvocation.MyCommand.Name
-$ScriptBaseName = [System.IO.Path]::GetFileNameWithoutExtension($ScriptName)
-$ScriptNameFull = $MyInvocation.MyCommand.Path
 $ScriptPath     = Split-Path -Parent -Path $MyInvocation.MyCommand.Definition
 $LogFolder      = Join-Path -Path (Split-Path $ScriptPath -Parent) -ChildPath "logs"
-$LogFile        = Join-Path -Path $LogFolder -ChildPath ($ScriptBaseName + "_" + (Get-Date -Format 'yyyyMMdd-HHmmss') + ".log")
+$LogFile        = Join-Path -Path $LogFolder -ChildPath ($ScriptName + "_" + (Get-Date -Format 'yyyyMMdd-HHmmss') + ".log")
 $ConfigFile     = Join-Path -Path (Split-Path $MyInvocation.MyCommand.Path -Parent) -ChildPath $ConfigFile
-# - End of Default Values ------------------------------------------------------
 
 # - Initialisation -------------------------------------------------------------
-
 # Display help information if -Help parameter is used
 if ($Help) {
     Get-Help ".\$ScriptName" -detailed
@@ -100,26 +96,10 @@ Write-Host
 Write-Log -Level INFO -Message "=============================================================="
 Write-Log -Level INFO -Message "Start $ScriptName on host $Hostname at $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
 
-Install-WindowsFeature -Name Server-Media-Foundation
-Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
-
-# Check and Import Required Module
-try {
-    if (-not (Get-Module -ListAvailable -Name ADDSDeployment)) {
-        Write-Log -Level INFO -Message "The ADDSDeployment module is not installed. Attempting to install it."
-        Install-Module -Name ADDSDeployment -Scope CurrentUser -Force
-        Write-Log -Level INFO -Message "ADDSDeployment module installed successfully."
-    }
-    Import-Module ADDSDeployment -ErrorAction Stop
-    Write-Log -Level INFO -Message "ADDSDeployment module imported successfully."
-} catch {
-    Exit-Script -ErrorMessage "Failed to manage the ADDSDeployment module. Error: $_"
-}
-
-# call Config Script with Error Handling
+# Load Config
 try {
     if (Test-Path -Path $ConfigFile) {
-        Write-Log -Level INFO -Message "load default values from $ConfigFile"
+        Write-Log -Level INFO -Message "Loading config file: $ConfigFile"
         . $ConfigFile
     } else {
         throw "Config file $ConfigFile not found."
@@ -148,65 +128,90 @@ Write-Log -Level DEBUG -Message "DNS Server 2          : $DNS2ClientServerAddres
 Write-Log -Level DEBUG -Message "Default Password      : $PlainPassword"
 Write-Log -Level DEBUG -Message "- EOF Default Values ----------------------------------------"
 
-# Check if Active Directory Domain Services feature is installed
-if (-not (Get-WindowsFeature -Name AD-Domain-Services -ErrorAction SilentlyContinue)) {
-    # If not installed, proceed with installing AD DS
-    Write-Log -Level INFO -Message "--------------------------------------------------------------"
-    Write-Log -Level INFO -Message "Install AD Role"
-    
-    try {
-        $computerSystem = Get-WmiObject Win32_ComputerSystem
-        if ($computerSystem.PartOfDomain -eq $false) {
-            Write-Log -Level INFO -Message "Installing AD-Domain-Services"
-            Import-Module ServerManager
-            Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
-    
-            Write-Log -Level INFO -Message "Relax password complexity"
-            # Disable password complexity policy
-            $secPolConfigPath = "C:\secpol.cfg"
-            secedit /export /cfg $secPolConfigPath
-            (Get-Content $secPolConfigPath).replace("PasswordComplexity = 1", "PasswordComplexity = 0").replace("PasswordHistorySize = 24", "PasswordHistorySize = 0") | Set-Content $secPolConfigPath
-            secedit /configure /db C:\Windows\security\local.sdb /cfg $secPolConfigPath /areas SECURITYPOLICY
-            Remove-Item -Force $secPolConfigPath -Confirm:$false
-    
-            # Set administrator password
-            $computerName = $env:COMPUTERNAME
-            $adminUser = [ADSI]"WinNT://$computerName/Administrator,User"
-            $SecurePassword = ConvertTo-SecureString -String $PlainPassword -AsPlainText -Force
-            # Use plain text password directly
-            $adminUser.SetPassword($PlainPassword)
-    
-            Write-Log -Level INFO -Message "Creating domain controller"
-            $ADDSForestParams = @{
-                SafeModeAdministratorPassword = $SecurePassword
-                CreateDnsDelegation           = $false
-                DatabasePath                  = "C:\Windows\NTDS"
-                DomainMode                    = $ADDomainMode
-                ForestMode                    = $ADDomainMode
-                DomainName                    = $NetworkDomainName
-                DomainNetbiosName             = $netbiosDomain
-                InstallDns                    = $true
-                LogPath                       = "C:\Windows\NTDS"
-                NoRebootOnCompletion          = $true
-                SysvolPath                    = "C:\Windows\SYSVOL"
-                Force                         = $true
-            }
-            Import-Module ADDSDeployment
-            Install-ADDSForest @ADDSForestParams
-    
-            Write-Log -Level INFO -Message "Configure network adapter"
-            $newDNSServers = $DNS1ClientServerAddress, $DNS2ClientServerAddress
-            $adapters = Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object { $_.IPAddress -and ($_.IPAddress).StartsWith($Subnet) }
-            foreach ($adapter in $adapters) {
-                $adapter.SetDNSServerSearchOrder($newDNSServers)
-            }
-        }
-    } catch {
-        Exit-Script -ErrorMessage "Failed in AD Role Installation process. Error: $_"
-    }
-} else {
-    Write-Log -Level INFO -Message "This system is already a domain controller."
+# Check if Server is Already a Domain Controller
+$computerSystem = Get-WmiObject Win32_ComputerSystem
+$domainRole = $computerSystem.DomainRole
+
+if ($domainRole -ge 4) {
+    Write-Log -Level INFO -Message "This system is already a domain controller. No action required."
+    Exit-Script
 }
 
+# Check and Install AD DS Role if Not Installed
+$adFeature = Get-WindowsFeature -Name AD-Domain-Services
+if (-not $adFeature.Installed) {
+    Write-Log -Level INFO -Message "Installing AD-Domain-Services role..."
+    Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
+}
+
+# Ensure ADDSDeployment Module is Available
+try {
+    if (-not (Get-Module -ListAvailable -Name ADDSDeployment)) {
+        Write-Log -Level INFO -Message "ADDSDeployment module missing. Installing..."
+        Install-Module -Name ADDSDeployment -Scope CurrentUser -Force
+    }
+    Import-Module ADDSDeployment -ErrorAction Stop
+} catch {
+    Exit-Script -ErrorMessage "Failed to import ADDSDeployment module. Error: $_"
+}
+
+# Configure Password Complexity
+try {
+    Write-Log -Level INFO -Message "Configuring password complexity settings..."
+    $secPolConfigPath = "C:\secpol.cfg"
+    secedit /export /cfg $secPolConfigPath
+    (Get-Content $secPolConfigPath).replace("PasswordComplexity = 1", "PasswordComplexity = 0").replace("PasswordHistorySize = 24", "PasswordHistorySize = 0") | Set-Content $secPolConfigPath
+    secedit /configure /db C:\Windows\security\local.sdb /cfg $secPolConfigPath /areas SECURITYPOLICY
+    Remove-Item -Force $secPolConfigPath -Confirm:$false
+} catch {
+    Exit-Script -ErrorMessage "Failed to configure password complexity. Error: $_"
+}
+
+# Set Administrator Password
+try {
+    Write-Log -Level INFO -Message "Setting administrator password..."
+    $computerName = $env:COMPUTERNAME
+    $adminUser = [ADSI]"WinNT://$computerName/Administrator,User"
+    $SecurePassword = ConvertTo-SecureString -String $PlainPassword -AsPlainText -Force
+    $adminUser.SetPassword($PlainPassword)
+} catch {
+    Exit-Script -ErrorMessage "Failed to set administrator password. Error: $_"
+}
+
+# Promote Server to Domain Controller
+try {
+    Write-Log -Level INFO -Message "Promoting server to Domain Controller..."
+    $ADDSForestParams = @{
+        SafeModeAdministratorPassword = $SecurePassword
+        CreateDnsDelegation           = $false
+        DatabasePath                  = "C:\Windows\NTDS"
+        DomainMode                    = $ADDomainMode
+        ForestMode                    = $ADDomainMode
+        DomainName                    = $NetworkDomainName
+        DomainNetbiosName             = $netbiosDomain
+        InstallDns                    = $true
+        LogPath                       = "C:\Windows\NTDS"
+        NoRebootOnCompletion          = $true
+        SysvolPath                    = "C:\Windows\SYSVOL"
+        Force                         = $true
+    }
+    Install-ADDSForest @ADDSForestParams
+} catch {
+    Exit-Script -ErrorMessage "Failed to promote server to Domain Controller. Error: $_"
+}
+
+# Configure Network Adapter
+try {
+    Write-Log -Level INFO -Message "Configuring network adapter..."
+    $newDNSServers = $DNS1ClientServerAddress, $DNS2ClientServerAddress
+    $adapters = Get-WmiObject Win32_NetworkAdapterConfiguration | Where-Object { $_.IPAddress -and ($_.IPAddress).StartsWith($Subnet) }
+    foreach ($adapter in $adapters) {
+        $adapter.SetDNSServerSearchOrder($newDNSServers)
+    }
+} catch {
+    Write-Log -Level WARNING -Message "Network configuration failed, but AD installation continues."
+}
+
+Write-Log -Level INFO -Message "AD Domain Controller installation complete. Please reboot the server."
 Exit-Script
 # --- EOF ----------------------------------------------------------------------
