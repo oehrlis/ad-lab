@@ -69,11 +69,11 @@ if ((Test-Path $ConfigFile)) {
 # - Main -----------------------------------------------------------------------
 Import-Module ActiveDirectory
 
-# Update group membership of Trivadis LAB Users
-Write-Host "INFO: Add group Trivadis LAB Users to ORA_VFR_11G and ORA_VFR_12C..."
-Add-ADPrincipalGroupMembership -Identity "Trivadis LAB Users" -MemberOf ORA_VFR_11G
+# Update group membership of $Company Users
+Write-Host "INFO: Add group $Company Users to ORA_VFR_11G and ORA_VFR_12C..."
+Add-ADPrincipalGroupMembership -Identity "$Company Users" -MemberOf ORA_VFR_11G
 # ORA_VFR_12C should yet not been used for EUS. Make sure you clarify the SHA512 issues on the DB first.
-#Add-ADPrincipalGroupMembership -Identity "Trivadis LAB Users" -MemberOf ORA_VFR_12C
+#Add-ADPrincipalGroupMembership -Identity "$Company Users" -MemberOf ORA_VFR_12C
 
 # reset passwords
 Write-Host "INFO: Reset all User Passwords..."
@@ -96,6 +96,7 @@ Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity blofeld
 Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity miller
 Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity clark
 Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity king
+Set-ADAccountPassword -Reset -NewPassword $SecurePassword -Identity dent
 
 Write-Host "INFO: Finish $ScriptName" (Get-Date -UFormat "%d %B %Y %T")
 Write-Host "INFO: ==============================================================" 
