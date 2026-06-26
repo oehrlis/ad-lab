@@ -353,6 +353,53 @@ function Get-LoggingLevel {
     return $script:LoggingLevel
 }
 
+<#
+.SYNOPSIS
+    Waits until Active Directory is ready and LDAP port 389 is reachable.
+
+.DESCRIPTION
+    Polls Get-ADDomain and TCP port 389 on localhost at configurable intervals.
+    Throws a terminating exception if AD is not ready within the timeout.
+
+.PARAMETER TimeoutSeconds
+    Maximum seconds to wait. Default is 300.
+
+.PARAMETER IntervalSeconds
+    Seconds between each retry. Default is 15.
+
+.EXAMPLE
+    Wait-ADReady -TimeoutSeconds 300 -IntervalSeconds 15
+
+#>
+function Wait-ADReady {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory = $false)]
+        [int]$TimeoutSeconds  = 300,
+
+        [Parameter(Mandatory = $false)]
+        [int]$IntervalSeconds = 15
+    )
+
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+
+    while ((Get-Date) -lt $deadline) {
+        try {
+            Get-ADDomain | Out-Null
+            $ldap = Test-NetConnection -ComputerName localhost -Port 389 -WarningAction SilentlyContinue
+            if ($ldap.TcpTestSucceeded) {
+                Write-Log -Message "AD bereit (Get-ADDomain + LDAP Port 389 erreichbar)" -Level INFO
+                return
+            }
+            throw "LDAP Port 389 noch nicht erreichbar"
+        } catch {
+            Write-Log -Message "AD noch nicht bereit, warte $IntervalSeconds Sekunden... ($_)" -Level INFO
+            Start-Sleep -Seconds $IntervalSeconds
+        }
+    }
+    throw "Timeout nach $TimeoutSeconds Sekunden: Active Directory nicht bereit."
+}
+
 # Export the functions
-Export-ModuleMember -Function Write-Log, New-Password, Exit-Script, Use-Module, Set-LoggingLevel, Get-LoggingLevel
+Export-ModuleMember -Function Write-Log, New-Password, Exit-Script, Use-Module, Set-LoggingLevel, Get-LoggingLevel, Wait-ADReady
 # --- EOF ----------------------------------------------------------------------

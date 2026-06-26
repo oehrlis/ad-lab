@@ -104,6 +104,8 @@ $taskName                   = "$MyScriptBaseName.Task"
 $ModulePath = Join-Path -Path $MyScriptPath -ChildPath "Modules\CommonFunctions"
 Import-Module $ModulePath
 
+$ErrorActionPreference = 'Stop'
+
 # - Functions ------------------------------------------------------------------
 # Function to list current status
 function ListStatus {
@@ -201,6 +203,16 @@ function Step1 {
 function Step2 {
     # Your code for Step 2
     Write-Log -Level INFO -Message "INFO: Start Step 2"
+
+    # Wait for AD to become available before running post-reboot scripts
+    try {
+        Wait-ADReady -TimeoutSeconds 300 -IntervalSeconds 15
+    } catch {
+        Write-Log -Level INFO -Message "ERR : AD not ready after timeout - $_"
+        Remove-StartupTask
+        return
+    }
+
     # Split the string into an array of file names
     $ScriptsStep2Array = $ScriptsStep2String -split ',\s*'
 
