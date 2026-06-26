@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   konfiguriert LDAP Bind ACL für oracle User, generiert Kerberos Keytab-Dateien via KtPass
 - `config/default_configuration.txt`: neue Konfigurationsparameter `OracleBase`,
   `InstantClientVersion`, `InstantClientBuild`, `InstantClientSuffix`, `CNAMEOud`, `CNAMEDb`
+- Dokumentation vollständig überarbeitet: `README.md` (Root), `scripts/README.md`,
+  `config/README.md`, `scripts/modules/CommonFunctions/README.md` — aktueller
+  Skriptstand, Konfigurationsreferenz, `Wait-ADReady` Dokumentation
 
 ### Changed
 

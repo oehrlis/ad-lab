@@ -21,6 +21,9 @@ The module provides the following functions:
 - **Use-Module:** Ensures that a specified PowerShell module is installed
   and imported with a minimum version. It can automatically install the module
   if it's not available.
+- **Wait-ADReady:** Waits until Active Directory is ready (`Get-ADDomain`
+  succeeds and LDAP port 389 is reachable). Throws a terminating exception
+  if AD is not available within the configured timeout.
 
 ## Getting Started
 
@@ -114,6 +117,19 @@ This function gets the logging level for the module.
 Get-LoggingLevel
 ```
 
+### Wait-ADReady
+
+Waits until Active Directory is ready by polling `Get-ADDomain` and TCP
+port 389 on localhost. Throws a terminating exception if the timeout expires.
+Replace infinite `while ($true)` AD polling loops with this function.
+
+```powershell
+Wait-ADReady [-TimeoutSeconds <int>] [-IntervalSeconds <int>]
+```
+
+- `TimeoutSeconds` (Optional): Maximum seconds to wait. Default is 300.
+- `IntervalSeconds` (Optional): Seconds between retries. Default is 15.
+
 ## Examples
 
 Here are some examples of how to use the functions provided by the CommonFunctions
@@ -126,12 +142,21 @@ $randomPassword = New-Password
 # Log an informational message with a timestamp
 Write-Log -Message "This is an informational message."
 
+# Log a warning
+Write-Log -Message "Something looks off." -Level WARNING
+
 # Exit the script with a custom error message and exit code
 Exit-Script -ErrorMessage "An error occurred" -ExitCode 1
 
 # Sets the logging level to DEBUG, displaying all available log messages,
 # including debug information.
 Set-LoggingLevel -NewLevel DEBUG
+
+# Wait up to 5 minutes for AD to become available (default)
+Wait-ADReady
+
+# Wait up to 10 minutes, retry every 30 seconds
+Wait-ADReady -TimeoutSeconds 600 -IntervalSeconds 30
 ```
 
 For more detailed usage instructions, you can use the `Get-Help` command followed
