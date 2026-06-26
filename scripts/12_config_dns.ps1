@@ -5,143 +5,141 @@
 # Author.....: Stefan Oehrli (oes) stefan.oehrli@trivadis.com
 # Editor.....: Stefan Oehrli
 # Date.......: 2021.08.17
-# Revision...: 
+# Version....: 0.2.0
 # Purpose....: Script to configure DNS server
 # Notes......: ...
-# Reference..: 
+# Reference..:
 # License....: Apache License Version 2.0, January 2004 as shown
 #              at http://www.apache.org/licenses/
 # ------------------------------------------------------------------------------
+
+Set-StrictMode -Version Latest
 
 # - Default Values -------------------------------------------------------------
 $ScriptName     = $MyInvocation.MyCommand.Name
 $ScriptNameFull = $MyInvocation.MyCommand.Path
 $Hostname       = (Hostname)
-$ConfigScript   = (Split-Path $MyInvocation.MyCommand.Path -Parent) + "\00_init_environment.ps1"
+$ScriptPath     = Split-Path $MyInvocation.MyCommand.Path -Parent
+$ConfigScript   = Join-Path -Path $ScriptPath -ChildPath "00_init_environment.ps1"
 # - EOF Default Values ---------------------------------------------------------
 
+# Load CommonFunctions Module
+$ModulePath = Join-Path -Path $ScriptPath -ChildPath "Modules\CommonFunctions"
+Import-Module $ModulePath
+
 # - Initialisation -------------------------------------------------------------
-Write-Host
-Write-Host "INFO: ==============================================================" 
-Write-Host "INFO: Start $ScriptName on host $Hostname at" (Get-Date -UFormat "%d %B %Y %T")
+Write-Log -Level INFO -Message "=============================================================="
+Write-Log -Level INFO -Message "Start $ScriptName on host $Hostname at $(Get-Date -UFormat '%d %B %Y %T')"
 
 # call Config Script
-if ((Test-Path $ConfigScript)) {
-    Write-Host "INFO: load default values from $DefaultPWDFile"
+if (Test-Path $ConfigScript) {
+    Write-Log -Level INFO -Message "Load default values from $ConfigScript"
     . $ConfigScript
 } else {
-    Write-Error "ERROR: cloud not load default values"
+    Write-Log -Level ERROR -Message "Could not load default values from $ConfigScript"
     exit 1
 }
 
-# wait until we can access the AD. this is needed to prevent errors like:
-#   Unable to find a default server with Active Directory Web Services running.
-while ($true) {
-    try {
-        Get-ADDomain | Out-Null
-        break
-    } catch {
-        Write-Host 'Wait 15 seconds to get AD Domain ready...'
-        Start-Sleep -Seconds 15
-    }
-}
+Wait-ADReady -TimeoutSeconds 300 -IntervalSeconds 15
 # - EOF Initialisation ---------------------------------------------------------
 
 # - Variables ------------------------------------------------------------------
-$adDomain       = Get-ADDomain
-$domain         = $adDomain.DNSRoot
-$domainDn       = $adDomain.DistinguishedName
-$REALM          = $adDomain.DNSRoot.ToUpper()
-$NAT_IP         = (Get-WmiObject -Class Win32_NetworkAdapterConfiguration | Where-Object {$_.DefaultIPGateway -ne $null}).IPAddress | Select-Object -First 1
-$NAT_HOSTNAME   = hostname
+$adDomain     = Get-ADDomain
+$domain       = $adDomain.DNSRoot
+$domainDn     = $adDomain.DistinguishedName
+$REALM        = $adDomain.DNSRoot.ToUpper()
+$NAT_IP       = (Get-WmiObject -Class Win32_NetworkAdapterConfiguration | Where-Object {$_.DefaultIPGateway -ne $null}).IPAddress | Select-Object -First 1
+$NAT_HOSTNAME = hostname
 # - EOF Variables --------------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
-Write-Host "INFO: Default Values -----------------------------------------------" 
-Write-Host "      Script Name       : $ScriptName"
-Write-Host "      Script fq         : $ScriptNameFull"
-Write-Host "      Script Path       : $ScriptPath"
-Write-Host "      Config Path       : $ConfigPath"
-Write-Host "      Config Script     : $ConfigScript"
-Write-Host "      Password File     : $DefaultPWDFile"
-Write-Host "      Host File         : $HostCSVFile"
-Write-Host "      Host              : $NAT_HOSTNAME"
-Write-Host "      Subnet            : $Subnet"
-Write-Host "      Domain            : $domain"
-Write-Host "      REALM             : $REALM"
-Write-Host "      Base DN           : $domainDn"
+Write-Log -Level INFO -Message "Default Values -----------------------------------------------"
+Write-Log -Level INFO -Message "    Script Name   : $ScriptName"
+Write-Log -Level INFO -Message "    Script fq     : $ScriptNameFull"
+Write-Log -Level INFO -Message "    Script Path   : $ScriptPath"
+Write-Log -Level INFO -Message "    Config Path   : $ConfigPath"
+Write-Log -Level INFO -Message "    Config Script : $ConfigScript"
+Write-Log -Level INFO -Message "    Password File : $DefaultPWDFile"
+Write-Log -Level INFO -Message "    Host File     : $HostCSVFile"
+Write-Log -Level INFO -Message "    Host          : $NAT_HOSTNAME"
+Write-Log -Level INFO -Message "    Subnet        : $Subnet"
+Write-Log -Level INFO -Message "    Domain        : $domain"
+Write-Log -Level INFO -Message "    REALM         : $REALM"
+Write-Log -Level INFO -Message "    Base DN       : $domainDn"
 
-Import-Module DnsServer 
+Import-Module DnsServer
 
-$CharArray =$Subnet.Split(".")
+$CharArray    = $Subnet.Split(".")
 [array]::Reverse($CharArray)
-$revers_subnet=$CharArray -join '.'
+$revers_subnet = $CharArray -join '.'
 
-Write-Host "INFO: Create reverse lookup zone for network $Subnet.0/24..."
+Write-Log -Level INFO -Message "Create reverse lookup zone for network $Subnet.0/24"
 try {
-    # create reverse lookup zone
-    #Add-DnsServerPrimaryZone -NetworkID "$Subnet.0/24" -ReplicationScope "Domain"
     Add-DnsServerPrimaryZone -NetworkID "$Subnet.0/24" -ZoneFile "$revers_subnet.in-addr.arpa.dns"
 } catch {
-    Write-Host 'ERR : reate reverse lookup zone...'
-    Write-Host $_.Exception.Message
-}
-# temporary remove AD server record
-#Remove-DnsServerResourceRecord -ZoneName $domain -RRType "A" -Name $NAT_HOSTNAME -Force
-
-#...and import hosts
-Write-Host 'INFO: Process hosts from CSV ...'
-$HostList = Import-Csv -Path $HostCSVFile   
-foreach ($HostRecord in $HostList)
-{
-    $IP         = $HostRecord.IP
-    $IPv4Name   = $IP.Split(".")[3]
-    $Hostname   = $HostRecord.Name
-    $FQDN       = $Hostname + '.'+ $domain
-    $Keytabfile = 'C:\vagrant_common\config\tnsadmin\' + $FQDN + '.keytab'
-    $Zone       = (Get-DnsServerZone | Select-Object ZoneName, IsReverseLookupZone, IsAutoCreated | Where-Object{ $_.IsReverseLookupZone -eq $True -and ( $_.IsAutoCreated -eq $False ) } | Select-Object -expand ZoneName)
-
-    # Write-Host "Add DNS Resource Record A for Host $Hostname with IP $IP ..."
-    # Try {
-    #     Add-DnsServerResourceRecordA -Name $Hostname -ZoneName $domain -AllowUpdateAny -IPv4Address $IP -TimeToLive 01:00:00
-    # } Catch {
-    #     Write-Host "Error while adding Resource Record A for Host:`n$($Error[0].Exception.Message)"
-    # }
-    # Write-Host "Add DNS PTR resource record for Host $Hostname for $FQDN"
-    # Try {
-    #     Add-DnsServerResourceRecordPtr -Name $IPv4Name -ZoneName $Zone -AllowUpdateAny -TimeToLive 01:00:00 -AgeRecord -PtrDomainName $FQDN
-    # } Catch {
-    #     Write-Host "Error while adding Resource Record A for Host:`n$($Error[0].Exception.Message)"
-    # }
-    # if ( $Hostname -Match "db") {
-    #     Write-Host "Generate keytab file for host $Hostname ..."
-    #     $cmd = 'ktpass -princ oracle/' + $FQDN + '@' + $REALM + ' -mapuser ' + $FQDN + ' -pass ' + $PlainPassword + ' -crypto ALL -ptype KRB5_NT_PRINCIPAL -out ' + $Keytabfile
-    #     $output = cmd /c $cmd 2>&1
-    #     # print command
-    #     Write-Host $cmd
-    #     # print output off command
-    #     Write-Host $output
-    # } else {
-    #     Write-Host "Skip keytab file generation for host $Hostname ..."
-    # }
+    Write-Log -Level WARNING -Message "Could not create reverse lookup zone: $($_.Exception.Message)"
 }
 
-# add CNAME records for ad, db and oud
-Add-DnsServerResourceRecordCName -Name "ad"  -HostNameAlias "$NAT_HOSTNAME.$domain" -ZoneName $domain
-Add-DnsServerResourceRecordCName -Name "oud" -HostNameAlias "oud12.$domain"  -ZoneName $domain
-Add-DnsServerResourceRecordCName -Name "db"  -HostNameAlias "db19.$domain"   -ZoneName $domain
+Write-Log -Level INFO -Message "Process hosts from CSV ($HostCSVFile)"
+try {
+    $HostList = Import-Csv -Path $HostCSVFile
+    foreach ($HostRecord in $HostList) {
+        $HostEntry = $HostRecord.Name
+        $IP        = $HostRecord.IP
+        $IPv4Name  = $IP.Split(".")[3]
+        $FQDN      = $HostEntry + '.' + $domain
+        $Zone      = (Get-DnsServerZone | Where-Object { $_.IsReverseLookupZone -eq $true -and $_.IsAutoCreated -eq $false } | Select-Object -ExpandProperty ZoneName)
 
-Resolve-DnsName -Name www.trivadislabs.com -Server 8.8.8.8
+        Write-Log -Level INFO -Message "Add DNS A record for $HostEntry ($IP)"
+        try {
+            Add-DnsServerResourceRecordA -Name $HostEntry -ZoneName $domain -AllowUpdateAny -IPv4Address $IP -TimeToLive 01:00:00
+        } catch {
+            Write-Log -Level WARNING -Message "Could not add A record for $HostEntry: $($_.Exception.Message)"
+        }
 
-# add A Record for trivadislabs.com
-if ($domain -eq "trivadislabs.com"){
-    Add-DnsServerResourceRecordA -Name "www" -ZoneName $domain -AllowUpdateAny -IPv4Address "140.238.172.60" -TimeToLive 01:00:00
+        if ($Zone) {
+            Write-Log -Level INFO -Message "Add DNS PTR record for $FQDN"
+            try {
+                Add-DnsServerResourceRecordPtr -Name $IPv4Name -ZoneName $Zone -AllowUpdateAny -TimeToLive 01:00:00 -AgeRecord -PtrDomainName $FQDN
+            } catch {
+                Write-Log -Level WARNING -Message "Could not add PTR record for $FQDN: $($_.Exception.Message)"
+            }
+        }
+    }
+} catch {
+    Write-Log -Level ERROR -Message "Failed to process hosts CSV: $_"
 }
 
-# get DNS Server Records
-Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME
+Write-Log -Level INFO -Message "Add CNAME records for ad, oud, db"
+try {
+    Add-DnsServerResourceRecordCName -Name "ad"  -HostNameAlias "$NAT_HOSTNAME.$domain" -ZoneName $domain
+    Add-DnsServerResourceRecordCName -Name "oud" -HostNameAlias "oud12.$domain"          -ZoneName $domain
+    Add-DnsServerResourceRecordCName -Name "db"  -HostNameAlias "db19.$domain"           -ZoneName $domain
+} catch {
+    Write-Log -Level WARNING -Message "Could not add CNAME record: $($_.Exception.Message)"
+}
 
-Write-Host "INFO: Done configuring DNS -----------------------------------------" 
-Write-Host "INFO: Finish $ScriptName $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
-Write-Host "INFO: ==============================================================" 
+try {
+    Resolve-DnsName -Name www.trivadislabs.com -Server 8.8.8.8 | Out-Null
+} catch {
+    Write-Log -Level WARNING -Message "Could not resolve www.trivadislabs.com: $($_.Exception.Message)"
+}
+
+if ($domain -eq "trivadislabs.com") {
+    try {
+        Add-DnsServerResourceRecordA -Name "www" -ZoneName $domain -AllowUpdateAny -IPv4Address "140.238.172.60" -TimeToLive 01:00:00
+    } catch {
+        Write-Log -Level WARNING -Message "Could not add www A record: $($_.Exception.Message)"
+    }
+}
+
+try {
+    Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME | Out-Null
+} catch {
+    Write-Log -Level WARNING -Message "Could not query DNS records for $NAT_HOSTNAME: $($_.Exception.Message)"
+}
+
+Write-Log -Level INFO -Message "Done configuring DNS"
+Write-Log -Level INFO -Message "Finish $ScriptName $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+Write-Log -Level INFO -Message "=============================================================="
 # --- EOF ----------------------------------------------------------------------
