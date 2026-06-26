@@ -1,5 +1,5 @@
 # AD Lab
-
+<!-- markdownlint-configure-file { "MD013": { "tables": false } } -->
 Active Directory lab environment for Oracle CMU (Central Management of User
 Accounts) and Kerberos authentication testing on OCI Windows Server (x86).
 

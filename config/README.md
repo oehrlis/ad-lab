@@ -1,3 +1,4 @@
+<!-- markdownlint-configure-file { "MD013": { "tables": false } } -->
 # AD Lab Configuration
 
 This directory contains lab configuration files loaded by the setup scripts.
