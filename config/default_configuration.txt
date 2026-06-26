@@ -1,11 +1,17 @@
 # config file to define default values for AD-Lab
 NetworkDomainName       = trivadislabs.com
 ADDomainMode            = default
-ServerAddress           = 
+ServerAddress           =
 DNS1ClientServerAddress = 8.8.8.8
 DNS2ClientServerAddress = 4.4.4.4
-PlainPassword           = 
+PlainPassword           =
 PasswordLength          = 15
 People                  = People
 Groups                  = Groups
 Company                 =
+OracleBase              = C:\u00\app\oracle
+InstantClientVersion    = 19.11.0.0.0
+InstantClientBuild      = 1911000
+InstantClientSuffix     = dbru
+CNAMEOud                = oud12
+CNAMEDb                 = db19

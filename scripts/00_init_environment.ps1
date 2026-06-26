@@ -27,7 +27,12 @@ $ScriptDebug                = ""                    # set to any value to enable
 $People                     = "People"              # OU Name used for user entries
 $Groups                     = "Groups"              # OU Name used for group entries
 $Company                    = "Trivadis LAB"        # Company name
-$OracleBase                 = "C:\u00\app\oracle"   # Oracle Base Folder              
+$OracleBase                 = "C:\u00\app\oracle"   # Oracle Base Folder
+$InstantClientVersion       = "19.11.0.0.0"         # Oracle Instant Client version string
+$InstantClientBuild         = "1911000"             # Oracle Instant Client build number (URL path segment)
+$InstantClientSuffix        = "dbru"                # Oracle Instant Client filename suffix
+$CNAMEOud                   = "oud12"               # CNAME target host for the 'oud' DNS alias
+$CNAMEDb                    = "db19"                # CNAME target host for the 'db' DNS alias
 # - End of Customization -------------------------------------------------------
 
 # - Default Values -------------------------------------------------------------
@@ -148,6 +153,30 @@ if ($DefaultConfigHash.PlainPassword) {
     $PlainPassword = $DefaultConfigHash.PlainPassword
 }
 
+if ($DefaultConfigHash.OracleBase) {
+    $OracleBase = $DefaultConfigHash.OracleBase
+}
+
+if ($DefaultConfigHash.InstantClientVersion) {
+    $InstantClientVersion = $DefaultConfigHash.InstantClientVersion
+}
+
+if ($DefaultConfigHash.InstantClientBuild) {
+    $InstantClientBuild = $DefaultConfigHash.InstantClientBuild
+}
+
+if ($DefaultConfigHash.InstantClientSuffix) {
+    $InstantClientSuffix = $DefaultConfigHash.InstantClientSuffix
+}
+
+if ($DefaultConfigHash.CNAMEOud) {
+    $CNAMEOud = $DefaultConfigHash.CNAMEOud
+}
+
+if ($DefaultConfigHash.CNAMEDb) {
+    $CNAMEDb = $DefaultConfigHash.CNAMEDb
+}
+
 # get the default subnet from the IP Address
 if (!$Subnet) { 
     $Subnet  = $ServerAddress -replace "\.\w*$", ""
@@ -204,6 +233,11 @@ if ($ScriptDebug) {
     Write-Log -Level INFO -Message "    User CSV File         : $UserCSVFile"
     Write-Log -Level INFO -Message "    Host CSV File         : $HostCSVFile"
     Write-Log -Level INFO -Message "    Oracle Base Folder    : $OracleBase"
+    Write-Log -Level INFO -Message "    IC Version            : $InstantClientVersion"
+    Write-Log -Level INFO -Message "    IC Build              : $InstantClientBuild"
+    Write-Log -Level INFO -Message "    IC Suffix             : $InstantClientSuffix"
+    Write-Log -Level INFO -Message "    CNAME oud target      : $CNAMEOud"
+    Write-Log -Level INFO -Message "    CNAME db  target      : $CNAMEDb"
     Write-Log -Level INFO -Message "-------------------------------------------------------------"
 }
 # --- EOF ----------------------------------------------------------------------

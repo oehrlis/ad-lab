@@ -110,11 +110,11 @@ try {
     Write-Log -Level ERROR -Message "Failed to process hosts CSV: $_"
 }
 
-Write-Log -Level INFO -Message "Add CNAME records for ad, oud, db"
+Write-Log -Level INFO -Message "Add CNAME records for ad ($NAT_HOSTNAME), oud ($CNAMEOud), db ($CNAMEDb)"
 try {
     Add-DnsServerResourceRecordCName -Name "ad"  -HostNameAlias "$NAT_HOSTNAME.$domain" -ZoneName $domain
-    Add-DnsServerResourceRecordCName -Name "oud" -HostNameAlias "oud12.$domain"          -ZoneName $domain
-    Add-DnsServerResourceRecordCName -Name "db"  -HostNameAlias "db19.$domain"           -ZoneName $domain
+    Add-DnsServerResourceRecordCName -Name "oud" -HostNameAlias "$CNAMEOud.$domain"     -ZoneName $domain
+    Add-DnsServerResourceRecordCName -Name "db"  -HostNameAlias "$CNAMEDb.$domain"      -ZoneName $domain
 } catch {
     Write-Log -Level WARNING -Message "Could not add CNAME record: $($_.Exception.Message)"
 }
