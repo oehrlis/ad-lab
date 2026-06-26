@@ -45,11 +45,11 @@ notepad ..\config\default_configuration.txt
 
 `DeployADRole.ps1` runs three steps across reboots:
 
-| Step | Scripts | Purpose |
-|------|---------|---------|
-| Step 1 | `01_install_ad_role.ps1`, `22_install_chocolatey.ps1` | Install AD role + reboot |
-| Step 2 | `11_add_lab_company.ps1`, `11_add_service_principles.ps1`, `12_config_dns.ps1`, `26_install_tools.ps1`, `28_config_misc.ps1`, `28_install_oracle_client.ps1` | Configure AD + tools |
-| Step 3 | `13_config_ca.ps1`, `19_sum_up_ad.ps1` | CA + summary + updates |
+| Step   | Scripts                                                                                                                                                      | Purpose                  |
+|--------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------|
+| Step 1 | `01_install_ad_role.ps1`, `22_install_chocolatey.ps1`                                                                                                        | Install AD role + reboot |
+| Step 2 | `11_add_lab_company.ps1`, `11_add_service_principles.ps1`, `12_config_dns.ps1`, `26_install_tools.ps1`, `28_config_misc.ps1`, `28_install_oracle_client.ps1` | Configure AD + tools     |
+| Step 3 | `13_config_ca.ps1`, `19_sum_up_ad.ps1`                                                                                                                       | CA + summary + updates   |
 
 Run `27_config_cmu.ps1` separately after Step 2 to complete Oracle CMU and
 Kerberos configuration:
@@ -62,12 +62,12 @@ Kerberos configuration:
 
 All configuration is managed via two files:
 
-| File | Purpose |
-|------|---------|
+| File                               | Purpose                                    |
+|------------------------------------|--------------------------------------------|
 | `config/default_configuration.txt` | Key-value pairs overriding script defaults |
-| `config/default_pwd_windows.txt` | Default password (generated if empty) |
-| `config/hosts.csv` | IP/hostname list for DNS and Kerberos SPNs |
-| `config/users_ad.csv` | User list for AD import |
+| `config/default_pwd_windows.txt`   | Default password (generated if empty)      |
+| `config/hosts.csv`                 | IP/hostname list for DNS and Kerberos SPNs |
+| `config/users_ad.csv`              | User list for AD import                    |
 
 Key parameters in `default_configuration.txt`:
 
@@ -85,7 +85,7 @@ See [config/README.md](config/README.md) for the full parameter reference.
 
 ## Repository Structure
 
-```
+```text
 ad-lab/
 ├── config/                         # Configuration files
 │   ├── default_configuration.txt   # Main configuration
