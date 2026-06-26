@@ -36,11 +36,12 @@ if ((Test-Path $ConfigScript)) {
 
 # - Variables ------------------------------------------------------------------
 # get the IP Address of the NAT Network
-$NAT_IP=(Get-WmiObject -Class Win32_NetworkAdapterConfiguration | Where-Object {$_.DefaultIPGateway -ne $null}).IPAddress | select-object -first 1
-$NAT_HOSTNAME=hostname
-$adDomain       = Get-ADDomain
-$domain         = $adDomain.DNSRoot
-$StageFolder    =   "C:\stage"
+$NAT_IP       = (Get-WmiObject -Class Win32_NetworkAdapterConfiguration | Where-Object {$_.DefaultIPGateway -ne $null}).IPAddress | Select-Object -First 1
+$NAT_HOSTNAME = hostname
+$adDomain     = Get-ADDomain
+$domain       = $adDomain.DNSRoot
+$ip           = $ServerAddress
+$StageFolder  = "C:\stage"
 # - EOF Variables --------------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
@@ -81,7 +82,7 @@ Write-Host '- Installing Windows Update ----------------------------------------
 Try {
     Install-Module -Name PSWindowsUpdate -Force
     Import-Module -Name PSWindowsUpdate -Force
-    Get-WindowsUpdate -AcceptAll -AutoReboo
+    Get-WindowsUpdate -AcceptAll -AutoReboot
 } Catch {
     Write-Host "Installing Windows Update `n$($Error[0].Exception.Message)"
 }

@@ -52,6 +52,8 @@ $adDomain       = Get-ADDomain
 $domain         = $adDomain.DNSRoot
 $domainDn       = $adDomain.DistinguishedName
 $REALM          = $adDomain.DNSRoot.ToUpper()
+$NAT_IP         = (Get-WmiObject -Class Win32_NetworkAdapterConfiguration | Where-Object {$_.DefaultIPGateway -ne $null}).IPAddress | Select-Object -First 1
+$NAT_HOSTNAME   = hostname
 # - EOF Variables --------------------------------------------------------------
 
 # - Main -----------------------------------------------------------------------
@@ -135,10 +137,6 @@ Resolve-DnsName -Name www.trivadislabs.com -Server 8.8.8.8
 if ($domain -eq "trivadislabs.com"){
     Add-DnsServerResourceRecordA -Name "www" -ZoneName $domain -AllowUpdateAny -IPv4Address "140.238.172.60" -TimeToLive 01:00:00
 }
-
-# get the IP Address of the NAT Network
-$NAT_IP=(Get-WmiObject -Class Win32_NetworkAdapterConfiguration | where {$_.DefaultIPGateway -ne $null}).IPAddress | select-object -first 1
-$NAT_HOSTNAME=hostname
 
 # get DNS Server Records
 Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME

@@ -26,7 +26,7 @@ $StageFolder    = (Split-Path $MyInvocation.MyCommand.Path -Parent|Split-Path -P
 # - Main -----------------------------------------------------------------------
 Write-Host '= Start AD-Lab config part I ======================================='
 New-Item -ItemType Directory -Force -Path $LogFolder
-$ErrorActionPreference="SilentlyContinue"
+$ErrorActionPreference="Stop"
 Start-Transcript -path "$LogFile" 
 
 Write-Host "INFO: Config Values ------------------------------------------------" 
