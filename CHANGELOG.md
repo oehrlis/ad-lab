@@ -6,6 +6,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased] - 2026-06-26
+
+### Added
+
+- `CommonFunctions.psm1`: neue Funktion `Wait-ADReady` — wartet auf `Get-ADDomain`
+  und LDAP Port 389, konfigurierbare Timeout/Intervall-Parameter, wirft terminierende
+  Exception bei Timeout
+- `27_config_cmu.ps1`: vollständig implementiert — erstellt `ORA_VFR_11G`/`ORA_VFR_12C`
+  Gruppen, setzt `msDS-SupportedEncryptionTypes=AES256` auf Oracle Service Accounts,
+  konfiguriert LDAP Bind ACL für oracle User, generiert Kerberos Keytab-Dateien via KtPass
+- `config/default_configuration.txt`: neue Konfigurationsparameter `OracleBase`,
+  `InstantClientVersion`, `InstantClientBuild`, `InstantClientSuffix`, `CNAMEOud`, `CNAMEDb`
+
+### Changed
+
+- `DeployADRole.ps1`: `$ErrorActionPreference = 'Stop'` gesetzt; `Wait-ADReady` am
+  Anfang von Step2 aufgerufen
+- `11_add_lab_company.ps1`: auf CommonFunctions umgestellt — `Write-Log`, `Set-StrictMode`,
+  explizites `Import-Module`, `Wait-ADReady` statt Infinite-Loop, AD-Operationen in
+  try-catch; `"Trivadis LAB Users"` durch `"$Company Users"` ersetzt
+- `11_add_service_principles.ps1`: auf CommonFunctions umgestellt — `Write-Log`,
+  `Set-StrictMode`, `Wait-ADReady`, Idempotenzprüfung für Host-Principals und oracle User
+- `12_config_dns.ps1`: auf CommonFunctions umgestellt — `Write-Log`, `Set-StrictMode`,
+  `Wait-ADReady`; zuvor auskommentierten DNS A/PTR-Record Code aktiviert; CNAME-Targets
+  `oud12`/`db19` durch `$CNAMEOud`/`$CNAMEDb` aus Konfiguration ersetzt
+- `28_install_oracle_client.ps1`: Instant Client Version, Build und Suffix als
+  Variablen aus Konfiguration; Download und Extract in Schleife; PATH-Prüfung vor
+  `SetEnvironmentVariable`; auf CommonFunctions umgestellt
+- `40_reset_ad_users.ps1`: `"Trivadis LAB Users"` durch `"$Company Users"` ersetzt
+- `00_init_environment.ps1`: Defaults und Config-Hash-Overrides für alle neuen Parameter
+
+### Fixed
+
+- `51_config_ad-lab_part1.ps1`, `52_config_ad-lab_part2.ps1`: `$ErrorActionPreference`
+  von `SilentlyContinue` auf `Stop` gesetzt
+- `12_config_dns.ps1`: `$NAT_HOSTNAME`/`$NAT_IP` in den Variables-Block verschoben
+  (waren erst nach ihrer Verwendung definiert)
+- `28_config_misc.ps1`: Typo `-AutoReboo` auf `-AutoReboot` korrigiert; fehlende
+  Variable `$ip = $ServerAddress` ergänzt
+
 ## [Unreleased] - 2021-03-04
 
 ### Added
