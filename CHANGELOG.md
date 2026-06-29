@@ -42,6 +42,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `12_config_dns.ps1`, `27_config_cmu.ps1`: Parse-Fehler unter `Set-StrictMode -Version Latest`
+  auf PS 5.1.20348+ behoben — `$VAR:` in Strings wurde als Scope-Qualifier geparst;
+  Variablen-Referenzen auf `${VAR}:` umgestellt (`$HostEntry`, `$FQDN`, `$NAT_HOSTNAME`,
+  `$grp`, `$KeytabFolder`)
 - `51_config_ad-lab_part1.ps1`, `52_config_ad-lab_part2.ps1`: `$ErrorActionPreference`
   von `SilentlyContinue` auf `Stop` gesetzt
 - `12_config_dns.ps1`: `$NAT_HOSTNAME`/`$NAT_IP` in den Variables-Block verschoben

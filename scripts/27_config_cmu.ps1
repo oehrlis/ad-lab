@@ -96,7 +96,7 @@ foreach ($grp in $OraVfrGroups) {
             Write-Log -Level INFO -Message "Group $grp already exists. Skip."
         }
     } catch {
-        Write-Log -Level ERROR -Message "Failed to create group $grp: $_"
+        Write-Log -Level ERROR -Message "Failed to create group ${grp}: $_"
     }
 }
 
@@ -165,7 +165,7 @@ Write-Log -Level INFO -Message "Step 4: Generate Kerberos keytab files for DB se
 try {
     New-Item -ItemType Directory -Force -Path $KeytabFolder | Out-Null
 } catch {
-    Write-Log -Level WARNING -Message "Could not create keytab folder $KeytabFolder: $($_.Exception.Message)"
+    Write-Log -Level WARNING -Message "Could not create keytab folder ${KeytabFolder}: $($_.Exception.Message)"
 }
 
 try {
@@ -183,7 +183,7 @@ try {
                 $output = cmd /c $ktpassCmd 2>&1
                 Write-Log -Level INFO -Message "ktpass output: $output"
             } catch {
-                Write-Log -Level ERROR -Message "ktpass failed for $FQDN: $_"
+                Write-Log -Level ERROR -Message "ktpass failed for ${FQDN}: $_"
             }
         } else {
             Write-Log -Level INFO -Message "Skip keytab for $HostEntry (not a DB host)"

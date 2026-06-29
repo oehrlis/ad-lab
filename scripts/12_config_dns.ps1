@@ -94,7 +94,7 @@ try {
         try {
             Add-DnsServerResourceRecordA -Name $HostEntry -ZoneName $domain -AllowUpdateAny -IPv4Address $IP -TimeToLive 01:00:00
         } catch {
-            Write-Log -Level WARNING -Message "Could not add A record for $HostEntry: $($_.Exception.Message)"
+            Write-Log -Level WARNING -Message "Could not add A record for ${HostEntry}: $($_.Exception.Message)"
         }
 
         if ($Zone) {
@@ -102,7 +102,7 @@ try {
             try {
                 Add-DnsServerResourceRecordPtr -Name $IPv4Name -ZoneName $Zone -AllowUpdateAny -TimeToLive 01:00:00 -AgeRecord -PtrDomainName $FQDN
             } catch {
-                Write-Log -Level WARNING -Message "Could not add PTR record for $FQDN: $($_.Exception.Message)"
+                Write-Log -Level WARNING -Message "Could not add PTR record for ${FQDN}: $($_.Exception.Message)"
             }
         }
     }
@@ -136,7 +136,7 @@ if ($domain -eq "trivadislabs.com") {
 try {
     Get-DnsServerResourceRecord -ZoneName $domain -Name $NAT_HOSTNAME | Out-Null
 } catch {
-    Write-Log -Level WARNING -Message "Could not query DNS records for $NAT_HOSTNAME: $($_.Exception.Message)"
+    Write-Log -Level WARNING -Message "Could not query DNS records for ${NAT_HOSTNAME}: $($_.Exception.Message)"
 }
 
 Write-Log -Level INFO -Message "Done configuring DNS"
