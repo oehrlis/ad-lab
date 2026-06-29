@@ -42,6 +42,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `27_config_cmu.ps1`: Vagrant-Pfad `C:\vagrant_common\config\tnsadmin` durch
+  `$env:AD_KEYTAB_DIR` (Fallback `C:\OraLab\config\keytabs`) ersetzt;
+  `ktpass -mapuser $FQDN` auf `-mapuser $HostEntry` korrigiert (SAM-Name, nicht FQDN —
+  `DsCrackNames 0x2` auf Windows Server 2022)
 - `12_config_dns.ps1`, `27_config_cmu.ps1`: Parse-Fehler unter `Set-StrictMode -Version Latest`
   auf PS 5.1.20348+ behoben — `$VAR:` in Strings wurde als Scope-Qualifier geparst;
   Variablen-Referenzen auf `${VAR}:` umgestellt (`$HostEntry`, `$FQDN`, `$NAT_HOSTNAME`,

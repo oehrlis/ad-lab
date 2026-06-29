@@ -56,7 +56,7 @@ $domainDn        = $adDomain.DistinguishedName
 $REALM           = $adDomain.DNSRoot.ToUpper()
 $GroupDN         = "ou=$Groups,$domainDn"
 $UsersDN         = "cn=Users,$domainDn"
-$KeytabFolder    = "C:\vagrant_common\config\tnsadmin"
+$KeytabFolder    = if ($env:AD_KEYTAB_DIR) { $env:AD_KEYTAB_DIR } else { 'C:\OraLab\config\keytabs' }
 
 # AES256 only for Oracle service accounts (msDS-SupportedEncryptionTypes = 16)
 $AES256EncType   = 16
@@ -178,7 +178,7 @@ try {
         if ($HostEntry -match "db") {
             Write-Log -Level INFO -Message "Generate keytab for $FQDN"
             try {
-                $ktpassCmd = "ktpass -princ oracle/$FQDN@$REALM -mapuser $FQDN -pass $PlainPassword -crypto AES256-SHA1 -ptype KRB5_NT_PRINCIPAL -out `"$Keytabfile`""
+                $ktpassCmd = "ktpass -princ oracle/$FQDN@$REALM -mapuser $HostEntry -pass $PlainPassword -crypto AES256-SHA1 -ptype KRB5_NT_PRINCIPAL -out `"$Keytabfile`""
                 Write-Log -Level INFO -Message "Running: $ktpassCmd"
                 $output = cmd /c $ktpassCmd 2>&1
                 Write-Log -Level INFO -Message "ktpass output: $output"
